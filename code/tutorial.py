@@ -1,5 +1,7 @@
 import transformers
-model = transformers.AutoModelForSequenceClassification.from_pretrained("textattack/bert-base-uncased-imdb")
+import torch
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = transformers.AutoModelForSequenceClassification.from_pretrained("textattack/bert-base-uncased-imdb").to(device)
 tokenizer = transformers.AutoTokenizer.from_pretrained("textattack/bert-base-uncased-imdb")
 
 import textattack
