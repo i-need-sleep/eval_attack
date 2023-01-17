@@ -23,7 +23,8 @@ print(dataset[0])
 
 
 attack = textattack.attack_recipes.clare_li_2020.CLARE2020.build(model_wrapper)
+print(attack)
 # Attack 20 samples with CSV logging and checkpoint saved every 5 interval
-attack_args = textattack.AttackArgs(num_examples=5, log_to_csv="log.csv", checkpoint_interval=5, checkpoint_dir="checkpoints", disable_stdout=True)
-attacker = textattack.Attacker(attack, dataset, attack_args)
-attacker.attack_dataset()
+# attack_args = textattack.AttackArgs(num_examples=5, log_to_csv="log.csv", checkpoint_interval=5, checkpoint_dir="checkpoints", disable_stdout=True)
+# attacker = textattack.Attacker(attack, dataset, attack_args)
+attack.attack(pairs[0][0], pairs[0][1])
