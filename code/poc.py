@@ -39,6 +39,8 @@ def make_adv(args):
     }
     # Attack!
     for pair_idx, pair in enumerate(pairs):
+        if pair_idx % 5 == 0:
+            print(pair_idx)
 
         if pair_idx >= args.n_samples:
             break
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('--victim', default='bleu4', type=str) 
 
     # Attack
-    parser.add_argument('--n_samples', default='200', type=int)
+    parser.add_argument('--n_samples', default='50', type=int)
 
     parser.add_argument('--goal_direction', default='up', type=str) 
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
