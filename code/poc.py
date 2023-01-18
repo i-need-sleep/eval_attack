@@ -16,6 +16,8 @@ def make_adv(args):
     # Wrap the victim metric
     if args.victim == 'bleu4':
         wrapper = utils.model_free_metrics.BleuWrapper()
+    elif args.victim == 'meteor':
+        wrapper = utils.model_free_metrics.MeteorWrapper()
     else:
         raise NotImplementedError
 
