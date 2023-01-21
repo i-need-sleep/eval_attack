@@ -1,38 +1,31 @@
-from torchtext.data.metrics import bleu_score
-from torchtext.data import get_tokenizer
-
 import textattack
 import evaluate
 
 class BleuWrapper(textattack.models.wrappers.ModelWrapper): 
-    def __init__(self, n=4):
-        self.n = n
-        self.tokenizer = get_tokenizer("basic_english")
+    def __init__(self):
+        self.bleu = evaluate.load('bleu')
         self.model = None
 
-        self.ref_tokens = None
+        self.ref = None
         self.original_score = None
     
     # Update the ref for every sample
     def set_ref(self, mt, ref):
-        self.ref_tokens = self.tokenizer(ref)
+        self.ref = ref
         self.original_score = self([mt])[0]
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
 
         for line_idx, mt in enumerate(text_inputs):
+            
+            score = self.bleu.compute(predictions = [mt], references = [[self.ref]])['bleu']
+            out.append(score)
 
-            mt_tokens = self.tokenizer(mt)
-            
-            bleu = bleu_score([mt_tokens], [[self.ref_tokens]])
-            out.append(bleu)
-            
         return out
 
 class MeteorWrapper(textattack.models.wrappers.ModelWrapper): 
-    def __init__(self, n=4):
-        self.n = n
+    def __init__(self):
         self.meteor = evaluate.load('meteor')
         self.model = None
 

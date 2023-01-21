@@ -28,7 +28,8 @@ def make_adv(args):
     goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
 
     # Set up the attack
-    attack = textattack.attack_recipes.clare_li_2020.CLARE2020.build(wrapper)
+    # attack = textattack.attack_recipes.clare_li_2020.CLARE2020.build(wrapper)
+    attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
     print(attack)
 
