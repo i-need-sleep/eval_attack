@@ -3,7 +3,7 @@ import argparse
 import pandas
 import textattack
 
-import utils.model_free_metrics
+import utils.simple_metrics
 import utils.data_utils
 import utils.attack_utils
 
@@ -15,9 +15,11 @@ def make_adv(args):
 
     # Wrap the victim metric
     if args.victim == 'bleu4':
-        wrapper = utils.model_free_metrics.BleuWrapper()
+        wrapper = utils.simple_metrics.BleuWrapper()
     elif args.victim == 'meteor':
-        wrapper = utils.model_free_metrics.MeteorWrapper()
+        wrapper = utils.simple_metrics.MeteorWrapper()
+    elif args.victim == 'bertscore':
+        wrapper = utils.simple_metrics.BertScoreWrapper()
     else:
         raise NotImplementedError
 
@@ -40,6 +42,7 @@ def make_adv(args):
         'original_score': [],
         'adv_score': [],
     }
+    failed_out = []
     # Attack!
     for pair_idx, pair in enumerate(pairs):
         if pair_idx % 5 == 0:
@@ -59,14 +62,20 @@ def make_adv(args):
         lines = attack_results.str_lines()
 
         # Write the output
-        out['mt'].append(mt)
-        out['ref'].append(ref)
-        out['adv'].append(lines[2])
-        out['original_score'].append(wrapper.original_score)
-        out['adv_score'].append(lines[0].split('>')[1])
+        try:
+            out['adv'].append(lines[2])
+            out['mt'].append(mt)
+            out['ref'].append(ref)
+            out['original_score'].append(wrapper.original_score)
+            out['adv_score'].append(lines[0].split('>')[1])
+        except:
+            print(lines)
+            failed_out.append(lines)
 
     df = pandas.DataFrame(data=out)
     df.to_csv(f'{OUTPUT_DIR}/{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}.csv')
+    df_failed = pandas.DataFrame(data=failed_out)
+    df_failed.to_csv(f'{OUTPUT_DIR}/{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}_falied.csv')
 
 
 if __name__ == '__main__':

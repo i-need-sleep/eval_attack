@@ -21,6 +21,7 @@ class BleuWrapper(textattack.models.wrappers.ModelWrapper):
             
             score = self.bleu.compute(predictions = [mt], references = [[self.ref]])['bleu']
             out.append(score)
+            
 
         return out
 
@@ -41,8 +42,31 @@ class MeteorWrapper(textattack.models.wrappers.ModelWrapper):
         out = [] # [score, ...]
 
         for line_idx, mt in enumerate(text_inputs):
-            
+
             score = self.meteor.compute(predictions = [mt], references = [self.ref])['meteor']
             out.append(score)
 
+        return out
+
+class BertScoreWrapper(textattack.models.wrappers.ModelWrapper): 
+    def __init__(self):
+        self.bertscore = evaluate.load('bertscore')
+        self.model = None
+
+        self.ref = None
+        self.original_score = None
+    
+    # Update the ref for every sample
+    def set_ref(self, mt, ref):
+        self.ref = ref
+        self.original_score = self([mt])[0]
+
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+
+        for line_idx, mt in enumerate(text_inputs):
+            
+            score = self.bertscore.compute(predictions = [mt], references = [self.ref], lang='en')['f1'][0]
+            out.append(score)
+            
         return out
