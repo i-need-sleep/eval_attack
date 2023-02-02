@@ -35,7 +35,11 @@ def make_adv(args):
     # attack = textattack.attack_recipes.clare_li_2020.CLARE2020.build(wrapper)
     attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
-    print(attack)
+
+    if args.only_flip_ratio_constraints:
+        constraint = attack.constraints[0]
+        constraint.max_percent = 0.1
+        attack.constraints = [constraint]
 
     out = {
         'mt': [],
@@ -75,9 +79,10 @@ def make_adv(args):
             failed_out.append(lines)
 
     df = pandas.DataFrame(data=out)
-    df.to_csv(f'{OUTPUT_DIR}/{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}.csv')
+    save_name = f'{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
+    df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
     df_failed = pandas.DataFrame(data=failed_out)
-    df_failed.to_csv(f'{OUTPUT_DIR}/{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}_falied.csv')
+    df_failed.to_csv(f'{OUTPUT_DIR}/{save_name}_falied.csv')
 
 
 if __name__ == '__main__':
@@ -94,6 +99,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--goal_direction', default='down', type=str) 
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
+
+    parser.add_argument('--only_flip_ratio_constraints', action='store_true')
 
     args = parser.parse_args()
 
