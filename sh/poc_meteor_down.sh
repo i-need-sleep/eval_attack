@@ -20,10 +20,14 @@ cd /l/users/yichen.huang/eval_attack/code   # 切到程序目录
 echo "START"               # 输出起始信息
 source /apps/local/anaconda3/bin/activate adv          # 调用 virtual env
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
+export HF_HOME=/l/users/yichen.huang/misc/cache
+python -u poc.py \
+    --name poc \
+    --goal_direction down \
+    --victim meteor 
 python -u poc.py \
     --name poc \
     --goal_direction down \
     --victim meteor \
-    --n_samples 500 \
-    --goal_abs_delta 0.2
+    --goal_abs_delta 0.15
 echo "FINISH"                       # 输出起始信息

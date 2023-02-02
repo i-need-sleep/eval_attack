@@ -70,3 +70,26 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
             out.append(score)
             
         return out
+
+class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
+    def __init__(self):
+        self.bleurt = evaluate.load("bleurt", module_type="metric")
+        self.model = None
+
+        self.ref = None
+        self.original_score = None
+    
+    # Update the ref for every sample
+    def set_ref(self, mt, ref):
+        self.ref = ref
+        self.original_score = self([mt])[0]
+
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+
+        for line_idx, mt in enumerate(text_inputs):
+            
+            score = self.bleurt.compute(predictions = [mt], references = [self.ref])['scores'][0]
+            out.append(score)
+            
+        return out

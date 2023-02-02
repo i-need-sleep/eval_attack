@@ -3,7 +3,7 @@ import argparse
 import pandas
 import textattack
 
-import utils.simple_metrics
+import utils.metrics
 import utils.data_utils
 import utils.attack_utils
 
@@ -15,11 +15,13 @@ def make_adv(args):
 
     # Wrap the victim metric
     if args.victim == 'bleu4':
-        wrapper = utils.simple_metrics.BleuWrapper()
+        wrapper = utils.metrics.BleuWrapper()
     elif args.victim == 'meteor':
-        wrapper = utils.simple_metrics.MeteorWrapper()
+        wrapper = utils.metrics.MeteorWrapper()
     elif args.victim == 'bertscore':
-        wrapper = utils.simple_metrics.BertScoreWrapper()
+        wrapper = utils.metrics.BertScoreWrapper()
+    elif args.victim == 'bleurt':
+        wrapper = utils.metrics.BLEURTWrapper()
     else:
         raise NotImplementedError
 
@@ -88,9 +90,9 @@ if __name__ == '__main__':
     parser.add_argument('--victim', default='bleu4', type=str) 
 
     # Attack
-    parser.add_argument('--n_samples', default='50', type=int)
+    parser.add_argument('--n_samples', default='9999999', type=int)
 
-    parser.add_argument('--goal_direction', default='up', type=str) 
+    parser.add_argument('--goal_direction', default='down', type=str) 
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
 
     args = parser.parse_args()
