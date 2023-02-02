@@ -21,6 +21,8 @@ echo "START"               # 输出起始信息
 source /apps/local/anaconda3/bin/activate adv          # 调用 virtual env
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 python -u poc.py \
-    --name poc_blue4_down \
-    --goal_direction down
+    --name poc_blue4 \
+    --goal_direction down \
+    --n_samples 500 \
+    --goal_abs_delta 0.2
 echo "FINISH"                       # 输出起始信息
