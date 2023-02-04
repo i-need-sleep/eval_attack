@@ -38,7 +38,7 @@ def make_adv(args):
 
     if args.only_flip_ratio_constraints:
         constraint = attack.constraints[0]
-        constraint.max_percent = 0.1
+        constraint.max_percent = args.flip_max_percent
         attack.constraints = [constraint]
 
     out = {
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
 
     parser.add_argument('--only_flip_ratio_constraints', action='store_true')
+    parser.add_argument('--flip_max_percent', default='0.1', type=float) 
 
     args = parser.parse_args()
 
