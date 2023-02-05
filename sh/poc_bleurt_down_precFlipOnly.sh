@@ -21,15 +21,16 @@ echo "START"               # 输出起始信息
 source /apps/local/anaconda3/bin/activate adv          # 调用 virtual env
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
-python -u poc.py \
-    --name poc \
-    --goal_direction down \
-    --victim bleurt \
-    --only_flip_ratio_constraints
+# python -u poc.py \
+#     --name poc \
+#     --goal_direction down \
+#     --victim bleurt \
+#     --only_flip_ratio_constraints
 python -u poc.py \
     --name poc \
     --victim bleurt \
     --goal_direction down \
     --goal_abs_delta 0.15 \
-    --only_flip_ratio_constraints
+    --only_flip_ratio_constraints \
+    --n_samples 1000
 echo "FINISH"                       # 输出起始信息
