@@ -3,6 +3,8 @@ import argparse
 import pandas
 import textattack
 
+import models.fast_genetic_modified
+
 import utils.metrics
 import utils.data_utils
 import utils.attack_utils
@@ -32,14 +34,14 @@ def make_adv(args):
     goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
 
     # Set up the attack
-    # attack = textattack.attack_recipes.clare_li_2020.CLARE2020.build(wrapper)
-    attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
+    if args.only_flip_ratio_constraints:
+        attack = models.fast_genetic_modified.FasterGeneticAlgorithmJia2019MaxWordsPerturbed.build(wrapper, args)
+    else:
+        attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
+
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
 
-    if args.only_flip_ratio_constraints:
-        constraint = attack.constraints[0]
-        constraint.max_percent = args.flip_max_percent
-        attack.constraints = [constraint]
+    print(attack)
 
     out = {
         'mt': [],
