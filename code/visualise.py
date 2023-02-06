@@ -1,3 +1,5 @@
+import argparse
+
 import dash
 import pandas as pd
 import Levenshtein
@@ -7,11 +9,10 @@ COLOR = {
     'text_highlight': 'red'
 }
 
-def visualise():
+def visualise(args):
     app = dash.Dash(__name__)
-    file_path = 'poc_bertscore_down_bertscore_down_0.05_50.csv'
 
-    file_path = f'{OUTPUT_DIR}/{file_path}'
+    file_path = f'{OUTPUT_DIR}/{args.file_path}'
 
     df = pd.read_csv(file_path)
 
@@ -20,6 +21,8 @@ def visualise():
     ]
     
     for i in range(len(df)):
+        if Levenshtein.distance(df['mt'][i].split(' '), df['adv'][i].split(' ')) <= args.min_edit_dist:
+            continue
         spans_mt, spans_adv = make_highlight_spans(df['mt'][i].split(' '), df['adv'][i].split(' '))
         content += [
             dash.html.Div(children=f'Score: {df["original_score"][i]} --> {df["adv_score"][i]}'),
@@ -95,4 +98,14 @@ def make_highlight_spans(a, b):
     
 
 if __name__ == '__main__':
-    visualise()
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--file_path', default='precFlipdown/poc_bleurt_down_0.15_1000_precFlipOnly.csv', type=str) 
+    # parser.add_argument('--file_path', default='precFlipdown/poc_bertscore_down_0.05_2000_precFlipOnly.csv', type=str) 
+
+    parser.add_argument('--min_edit_dist', default=0, type=int) 
+
+    args = parser.parse_args()
+
+    visualise(args)

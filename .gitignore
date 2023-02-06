@@ -11,10 +11,12 @@ data
 *.npz
 *.hi
 *.json
+*.csv
 
 # Models
 pretrained
-results
+results/checkpoints
+results/runs
 *.pt
 
 # sh

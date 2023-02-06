@@ -84,7 +84,7 @@ def make_adv(args):
     save_name = f'{args.name}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
     df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
     df_failed = pandas.DataFrame(data=failed_out)
-    df_failed.to_csv(f'{OUTPUT_DIR}/{save_name}_falied.csv')
+    df_failed.to_csv(f'{OUTPUT_DIR}/{save_name}_failed.csv')
 
 
 if __name__ == '__main__':
