@@ -17,7 +17,7 @@ def ted_to_lst(path):
         mt = df['mt'][line_idx]
         ref = df['ref'][line_idx]
         out.append([mt, ref])
-    print(out)
+        
     return out 
 
 # Batch eval for original mt/refs
