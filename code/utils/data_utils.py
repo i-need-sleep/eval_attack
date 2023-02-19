@@ -3,7 +3,7 @@ import pandas as pd
 DATA_FOLDER = '../data'
 
 # Loading data
-def ted_to_lst():
+def ted_to_lst(path):
     out = [] #[[mt, ref], ...]
 
     df = pd.read_csv(f'{DATA_FOLDER}/{path}.csv', header=0)

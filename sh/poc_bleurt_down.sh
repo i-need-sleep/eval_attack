@@ -22,10 +22,13 @@ export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name poc \
     --goal_direction down \
-    --victim bleurt
+    --victim bleurt \
+    --goal_abs_delta 0.5 \
+    --n_samples 500
 python -u poc.py \
     --name poc \
     --victim bleurt \
     --goal_direction down \
-    --goal_abs_delta 0.15
+    --goal_abs_delta 0.75 \
+    --n_samples 300
 echo "FINISH"                       # 输出起始信息
