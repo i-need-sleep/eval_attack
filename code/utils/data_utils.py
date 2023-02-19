@@ -3,10 +3,10 @@ import pandas as pd
 DATA_FOLDER = '../data'
 
 # Loading data
-def ted_to_lst(path='wmt-zhen-tedtalks.csv'):
+def ted_to_lst():
     out = [] #[[mt, ref], ...]
 
-    df = pd.read_csv(f'{DATA_FOLDER}/wmt-zhen-tedtalks.csv', header=0)
+    df = pd.read_csv(f'{DATA_FOLDER}/{path}.csv', header=0)
 
     for line_idx in range(len(df)):
         mt = df['mt'][line_idx]

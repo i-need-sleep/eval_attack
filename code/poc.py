@@ -28,7 +28,7 @@ def make_adv(args):
         raise NotImplementedError
 
     # Wrap a list from zhen-tedtalks [[mt, ref], ...]
-    pairs = utils.data_utils.ted_to_lst()
+    pairs = utils.data_utils.ted_to_lst(args.dataset)
 
     # Set up a modified goal function 
     goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
@@ -93,6 +93,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--name', default='unnamed', type=str) 
 
+    parser.add_argument('--dataset', default='wmt-zhen-tedtalks', type=str)
+    
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
 

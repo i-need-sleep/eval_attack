@@ -73,7 +73,7 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        self.bleurt = evaluate.load("bleurt", module_type="metric", checkpoint="bleurt-tiny-128")
+        self.bleurt = evaluate.load("bleurt", module_type="metric")
         self.model = None
 
         self.ref = None
