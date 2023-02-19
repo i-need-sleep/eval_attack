@@ -9,7 +9,7 @@ def ted_to_lst(path):
     df = pd.read_csv(f'{DATA_FOLDER}/{path}.csv', header=0)
 
     for line_idx in range(len(df)):
-        if path == '2016-da':
+        if path == '2017-da':
             if df['lp'][line_idx] != 'zh-en':
                 continue
 
@@ -17,7 +17,7 @@ def ted_to_lst(path):
         mt = df['mt'][line_idx]
         ref = df['ref'][line_idx]
         out.append([mt, ref])
-
+    print(out)
     return out 
 
 # Batch eval for original mt/refs
