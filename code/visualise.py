@@ -101,8 +101,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_path', default='semantic_constraints/poc_bleurt_down_0.5_500.csv', type=str) 
-    # parser.add_argument('--file_path', default='semantic_constraints/poc_bleurt_down_0.35_1000.csv', type=str) 
+    parser.add_argument('--file_path', default='2-20/poc2017da_2017-da_bleurt_down_0.35_300.csv', type=str) 
+    # parser.add_argument('--file_path', default='2-20/poc_wmt-zhen-tedtalks_bleurt_down_0.35_300.csv', type=str) 
 
     parser.add_argument('--min_edit_dist', default=0, type=int) 
 

@@ -38,10 +38,9 @@ def make_adv(args):
         attack = models.fast_genetic_modified.FasterGeneticAlgorithmJia2019MaxWordsPerturbed.build(wrapper, args)
     else:
         attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
+        attack.constraints[2].max_log_prob_diff = args.log_prob_diff
 
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
-
-    print(attack)
 
     out = {
         'mt': [],
@@ -81,7 +80,7 @@ def make_adv(args):
             failed_out.append(lines)
 
     df = pandas.DataFrame(data=out)
-    save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.n_samples}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
+    save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.n_samples}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
     df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
     df_failed = pandas.DataFrame(data=failed_out)
     df_failed.to_csv(f'{OUTPUT_DIR}/{save_name}_failed.csv')
@@ -106,6 +105,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--only_flip_ratio_constraints', action='store_true')
     parser.add_argument('--flip_max_percent', default='0.1', type=float) 
+    parser.add_argument('--log_prob_diff', default='5', type=float) 
 
     args = parser.parse_args()
 
