@@ -38,7 +38,15 @@ def make_adv(args):
         attack = models.fast_genetic_modified.FasterGeneticAlgorithmJia2019MaxWordsPerturbed.build(wrapper, args)
     else:
         attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
-        attack.constraints[2].max_log_prob_diff = args.log_prob_diff
+
+        if args.lm_constraint == 'google':
+            attack.constraints[2].max_log_prob_diff = args.log_prob_diff
+
+        elif args.lm_constraint == 'gpt2':
+            attack.constraints[2] = textattack.constraints.grammaticality.language_models.GPT2(max_log_prob_diff=args.log_prob_diff, compare_against_original=True)
+
+        else:
+            raise NotImplementedError
 
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
 
@@ -67,6 +75,9 @@ def make_adv(args):
         # Run the attack
         attack_results = attack.attack(mt, 1)
         lines = attack_results.str_lines()
+        
+        if args.debug:
+            print(lines)
 
         # Write the output
         try:
@@ -89,6 +100,8 @@ def make_adv(args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--debug', action='store_true')
 
     parser.add_argument('--name', default='unnamed', type=str) 
 
@@ -106,6 +119,7 @@ if __name__ == '__main__':
     parser.add_argument('--only_flip_ratio_constraints', action='store_true')
     parser.add_argument('--flip_max_percent', default='0.1', type=float) 
     parser.add_argument('--log_prob_diff', default='5', type=float) 
+    parser.add_argument('--lm_constraint', default='google', type=str) 
 
     args = parser.parse_args()
 
