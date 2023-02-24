@@ -47,7 +47,7 @@ def make_adv(args):
         if args.lm_constraint == 'google':
             attack.constraints[2].max_log_prob_diff = args.log_prob_diff
         elif args.lm_constraint == 'gpt2':
-            attack.constraints[2] = textattack.constraints.grammaticality.language_models.GPT2(max_log_prob_diff=args.log_prob_diff, compare_against_original=True)
+            attack.constraints[2] = utils.constraints.GPTConstraint(args.gpt_constraint_threshold)
         elif args.lm_constraint == 'bleurt':
             attack.constraints[2] = utils.constraints.BLEURTConstraint(args.bleurt_threshold)
         else:
@@ -61,8 +61,9 @@ def make_adv(args):
         'adv': [],
         'original_score': [],
         'adv_score': [],
-        'cos_dist': []
     }
+    if args.lm_constraint == 'bleurt':
+        out['cos_dist'] = []
     failed_out = []
     # Attack!
     for pair_idx, pair in enumerate(pairs):
@@ -77,7 +78,7 @@ def make_adv(args):
         # Compute the original score
         # Update the reference
         wrapper.set_ref(mt, ref)
-        if args.lm_constraint == 'bleurt':
+        if args.lm_constraint == 'bleurt' or 'gpt2':
             attack.constraints[2].set_ref(mt, ref)
 
         # Run the attack
@@ -100,7 +101,6 @@ def make_adv(args):
             else:
                 out['original_score'].append(wrapper.original_score)
                 out['adv_score'].append(lines[0].split('>')[1])
-                out['cos_dist'].append(0)
         except:
             print(lines)
             failed_out.append(lines)
@@ -139,6 +139,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_prob_diff', default='5', type=float) 
     parser.add_argument('--lm_constraint', default='google', type=str) 
     parser.add_argument('--bleurt_threshold', default=0.1, type=float) 
+    parser.add_argument('--gpt_constraint_threshold', default=10, type=float) 
 
     args = parser.parse_args()
 
