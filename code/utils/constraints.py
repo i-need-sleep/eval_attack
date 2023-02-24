@@ -38,7 +38,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
     
 class GPTConstraint(textattack.constraints.Constraint):
     def __init__(self, threshold):
-        self.perplexity = evaluate.load("perplexity",  module_type= "measurement")
+        self.perplexity = evaluate.load("perplexity",  module_type= "measurement", experiment_id=datetime.datetime.now())
         self.threshold = threshold
 
         self.mt = None
