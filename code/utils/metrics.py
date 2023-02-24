@@ -139,7 +139,7 @@ class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):
         self.original_score = self.perplexity.compute(data=[mt], model_id='gpt2')['perplexities'][0]
 
     def __call__(self, text_inputs):
-        return self.perplexity.compute(data=[text_inputs], model_id='gpt2')['perplexities']
+        return self.perplexity.compute(data=text_inputs, model_id='gpt2')['perplexities']
 
 if __name__ == '__main__':
     perplexity = evaluate.load("perplexity",  module_type= "measurement")
