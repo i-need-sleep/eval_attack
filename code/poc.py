@@ -27,6 +27,8 @@ def make_adv(args):
         wrapper = utils.metrics.BLEURTWrapper()
     elif args.victim == 'sbert':
         wrapper = utils.metrics.SBERTWrapper()
+    elif args.victim == 'gpt2':
+        wrapper = utils.metrics.GPT2Wrapper()
     else:
         raise NotImplementedError
 

@@ -126,7 +126,7 @@ class SBERTWrapper(textattack.models.wrappers.ModelWrapper):
         out = np.sum(embs[0] * embs[1])
         return out
     
-class GPTWrapper(textattack.models.wrappers.ModelWrapper):  
+class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):
         self.perplexity = evaluate.load("perplexity",  module_type= "measurement")
         self.model = None
