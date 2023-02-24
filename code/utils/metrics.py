@@ -125,7 +125,23 @@ class SBERTWrapper(textattack.models.wrappers.ModelWrapper):
         embs = self.sbert.encode([s1, s2])
         out = np.sum(embs[0] * embs[1])
         return out
-        
+    
+class GPTWrapper(textattack.models.wrappers.ModelWrapper):  
+    def __init__(self):
+        self.perplexity = evaluate.load("perplexity",  module_type= "measurement")
+        self.model = None
+
+        self.mt = None
+        self.original_score = 1
+
+    def set_ref(self, mt, _):
+        self.mt = mt
+        self.original_score = self.perplexity.compute(data=[mt], model_id='gpt2')['perplexities'][0]
+
+    def __call__(self, text_inputs):
+        return self.perplexity.compute(data=[text_inputs], model_id='gpt2')['perplexities']
 
 if __name__ == '__main__':
-    wrapper = SBERTWrapper()
+    perplexity = evaluate.load("perplexity",  module_type= "measurement")
+    results = perplexity.compute(data=["lorem ipsum", "Happy Birthday!", "Bienvenuem", 'Ziyu is dumb'], model_id='gpt2')
+    print(results)

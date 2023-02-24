@@ -11,6 +11,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
 
         self.ref = None
         self.original_score = None
+        self.compare_against_original = True
     
     # Update the ref for each sample
     def set_ref(self, mt, ref):
