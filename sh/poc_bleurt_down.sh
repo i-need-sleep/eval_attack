@@ -23,8 +23,8 @@ python -u poc.py \
     --name poc \
     --goal_direction down \
     --victim bleurt \
-    --goal_abs_delta 0.5 \
-    --n_samples 500
+    --goal_abs_delta 0.35 \
+    --n_samples 300
 python -u poc.py \
     --name poc \
     --victim bleurt \
