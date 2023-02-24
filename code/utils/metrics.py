@@ -5,7 +5,7 @@ import textattack
 import evaluate
 from sentence_transformers import SentenceTransformer
 
-PRETRAINED_DIR = '../../pretrained'
+PRETRAINED_DIR = '../pretrained'
 
 class BleuWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
