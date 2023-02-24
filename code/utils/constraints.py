@@ -26,7 +26,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         return False
     
     def _check_constraint_many(self, transformed_texts, reference_text):
-        scores = self.bleurt.compute(predictions = [t.text() for t in transformed_texts], references = [self.ref for _ in transformed_texts])['scores']
+        scores = self.bleurt.compute(predictions = [t.text for t in transformed_texts], references = [self.ref for _ in transformed_texts])['scores']
         return [abs(score) < self.threshold for score in scores]
     
     def get_bleurt_score(self, transformed_text):
