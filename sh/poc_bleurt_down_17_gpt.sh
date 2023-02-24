@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=poc_bleurt_down_17_       # 任务名
+#SBATCH --job-name=poc_bleurt_down_17_gpt_       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -26,7 +26,8 @@ python -u poc.py \
     --goal_abs_delta 0.2 \
     --n_samples 100 \
     --dataset 2017-da \
-    --log_prob_diff 3
+    --log_prob_diff 3 \
+    --lm_constraint gpt
 python -u poc.py \
     --name poc \
     --victim bleurt \
@@ -34,5 +35,6 @@ python -u poc.py \
     --goal_abs_delta 0.35 \
     --n_samples 100 \
     --dataset 2017-da \
-    --log_prob_diff 3
+    --log_prob_diff 3 \
+    --lm_constraint gpt
 echo "FINISH"                       # 输出起始信息
