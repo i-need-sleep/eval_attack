@@ -98,6 +98,7 @@ def make_adv(args):
             else:
                 out['original_score'].append(wrapper.original_score)
                 out['adv_score'].append(lines[0].split('>')[1])
+                out['cos_dist'].append(0)
         except:
             print(lines)
             failed_out.append(lines)
