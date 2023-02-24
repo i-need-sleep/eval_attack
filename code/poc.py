@@ -8,6 +8,7 @@ import models.fast_genetic_modified
 import utils.metrics
 import utils.data_utils
 import utils.attack_utils
+import utils.constraints
 
 OUTPUT_DIR = '../results/outputs'
 CHECKPOINT_DIR = '../results/checkpoints'
@@ -24,6 +25,8 @@ def make_adv(args):
         wrapper = utils.metrics.BertScoreWrapper()
     elif args.victim == 'bleurt':
         wrapper = utils.metrics.BLEURTWrapper()
+    elif args.victim == 'sbert':
+        wrapper = utils.metrics.SBERTWrapper()
     else:
         raise NotImplementedError
 
@@ -41,10 +44,10 @@ def make_adv(args):
 
         if args.lm_constraint == 'google':
             attack.constraints[2].max_log_prob_diff = args.log_prob_diff
-
         elif args.lm_constraint == 'gpt2':
             attack.constraints[2] = textattack.constraints.grammaticality.language_models.GPT2(max_log_prob_diff=args.log_prob_diff, compare_against_original=True)
-
+        elif args.lm_constraint == 'bleurt':
+            attack.constraints[2] = utils.constraints.BLEURTConstraint(args.bleurt_threshold)
         else:
             raise NotImplementedError
 
@@ -56,6 +59,7 @@ def make_adv(args):
         'adv': [],
         'original_score': [],
         'adv_score': [],
+        'cos_dist': []
     }
     failed_out = []
     # Attack!
@@ -71,6 +75,8 @@ def make_adv(args):
         # Compute the original score
         # Update the reference
         wrapper.set_ref(mt, ref)
+        if args.lm_constraint == 'bleurt':
+            attack.constraints[2].set_ref(mt, ref)
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
@@ -84,8 +90,14 @@ def make_adv(args):
             out['adv'].append(lines[2])
             out['mt'].append(mt)
             out['ref'].append(ref)
-            out['original_score'].append(wrapper.original_score)
-            out['adv_score'].append(lines[0].split('>')[1])
+
+            if args.lm_constraint == 'bleurt':
+                out['original_score'].append(attack.constraints[2].original_score)
+                out['adv_score'].append(attack.constraints[2].get_bleurt_score(lines[2]))
+                out['cos_dist'].append(lines[0].split('>')[1])
+            else:
+                out['original_score'].append(wrapper.original_score)
+                out['adv_score'].append(lines[0].split('>')[1])
         except:
             print(lines)
             failed_out.append(lines)
@@ -122,6 +134,7 @@ if __name__ == '__main__':
     parser.add_argument('--flip_max_percent', default='0.1', type=float) 
     parser.add_argument('--log_prob_diff', default='5', type=float) 
     parser.add_argument('--lm_constraint', default='google', type=str) 
+    parser.add_argument('--bleurt_threshold', default=0.1, type=float) 
 
     args = parser.parse_args()
 

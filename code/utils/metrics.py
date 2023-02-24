@@ -1,7 +1,11 @@
 import datetime
 
+import numpy as np
 import textattack
 import evaluate
+from sentence_transformers import SentenceTransformer
+
+PRETRAINED_DIR = '../../pretrained'
 
 class BleuWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
@@ -95,3 +99,33 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
             out.append(score)
             
         return out
+    
+class SBERTWrapper(textattack.models.wrappers.ModelWrapper):  
+    def __init__(self):
+        self.sbert = SentenceTransformer(('sentence-transformers/all-distilroberta-v1'), cache_folder=PRETRAINED_DIR)
+        self.model = None
+
+        self.mt = None
+        self.original_score = 1
+
+    def set_ref(self, mt, _):
+        self.mt = mt
+
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+
+        for line_idx, adv in enumerate(text_inputs):
+            
+            score = self.get_cos_dist(self.mt, adv)
+            out.append(score)
+            
+        return out
+
+    def get_cos_dist(self, s1, s2):
+        embs = self.sbert.encode([s1, s2])
+        out = np.sum(embs[0] * embs[1])
+        return out
+        
+
+if __name__ == '__main__':
+    wrapper = SBERTWrapper()
