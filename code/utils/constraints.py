@@ -60,7 +60,7 @@ class GPTConstraint(textattack.constraints.Constraint):
     def _check_constraint_many(self, transformed_texts, reference_text):
         scores = self.perplexity.compute(data=[t.text for t in transformed_texts], model_id='gpt2')['perplexities']
         out = []
-        for idx, text in transformed_texts:
+        for idx, text in enumerate(transformed_texts):
             if scores[idx] - self.original_score < self.threshold:
                 out.append(text) 
         return out
