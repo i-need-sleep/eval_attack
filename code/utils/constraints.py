@@ -21,7 +21,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
 
     def _check_constraint(self, transformed_text, current_text):
         score = self.bleurt.compute(predictions = [transformed_text], references = [self.ref])['scores'][0]
-        if abs(score) < self.threshold:
+        if abs(score - self.original_score) < self.threshold:
             return True
         return False
     
@@ -29,7 +29,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         scores = self.bleurt.compute(predictions = [t.text for t in transformed_texts], references = [self.ref for _ in transformed_texts])['scores']
         out = []
         for idx, text in enumerate(transformed_texts):
-            if abs(scores[idx]) < self.threshold:
+            if abs(scores[idx] - self.original_score) < self.threshold:
                 out.append(text) 
         return out
     
