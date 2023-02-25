@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=poc_bleurt_down_17_gpt_       # 任务名
+#SBATCH --job-name=poc_sbert_down_17_       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -21,11 +21,11 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name poc \
-    --victim bleurt \
     --goal_direction down \
-    --goal_abs_delta 0.4 \
-    --n_samples 100 \
+    --victim sbert \
+    --goal_abs_delta 0.2 \
+    --n_samples 500 \
     --dataset 2017-da \
-    --log_prob_diff 0.2 \
-    --lm_constraint gpt2
+    --bleurt_threshold 0.1 \
+    --lm_constraint bleurt
 echo "FINISH"                       # 输出起始信息

@@ -66,8 +66,6 @@ class GPTConstraint(textattack.constraints.Constraint):
         for idx, text in enumerate(transformed_texts):
             if scores[idx] - self.original_score < self.threshold:
                 out.append(text) 
-        if raw_text:
-            return [o.text for o in out]
         return out
     
     def get_perplexity(self, transformed_text):
