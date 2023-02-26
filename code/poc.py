@@ -69,9 +69,14 @@ def make_adv(args):
         'original_score': [],
         'adv_score': [],
     }
+    
+    if args.read_path != '':
+        out = utils.data_utils.csv_to_dict(args.read_path)
+
     if args.lm_constraint == 'bleurt':
         out['cos_dist'] = []
     failed_out = []
+    
     # Attack!
     for pair_idx, pair in enumerate(pairs):
         if pair_idx % 5 == 0:
@@ -79,13 +84,17 @@ def make_adv(args):
 
         if pair_idx >= args.n_samples:
             break
+
+        # Skip the samples already covered
+        if len(out['mt']) > pair_idx:
+            continue
         
         mt, ref = pair
 
         # Compute the original score
         # Update the reference
         wrapper.set_ref(mt, ref)
-        if args.lm_constraint == 'bleurt' or 'gpt2':
+        if args.lm_constraint in ['bleurt', 'gpt2']:
             attack.constraints[2].set_ref(mt, ref)
 
         # Run the attack
@@ -131,16 +140,19 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='unnamed', type=str) 
 
     parser.add_argument('--dataset', default='wmt-zhen-tedtalks', type=str)
-    
+    parser.add_argument('--read_path', default='', type=str) # Continue from this output file
+
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
 
     # Attack
     parser.add_argument('--n_samples', default='5000', type=int)
 
+    # Goal
     parser.add_argument('--goal_direction', default='down', type=str) 
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
 
+    # Constraints
     parser.add_argument('--only_flip_ratio_constraints', action='store_true')
     parser.add_argument('--no_max_words_perturbed_constraint', action='store_true')
     parser.add_argument('--no_word_emb_constraint', action='store_true')
@@ -148,7 +160,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_prob_diff', default='5', type=float) 
     parser.add_argument('--lm_constraint', default='google', type=str) 
     parser.add_argument('--bleurt_threshold', default=0.1, type=float) 
-    parser.add_argument('--gpt_constraint_threshold', default=10, type=float) 
+    parser.add_argument('--gpt_constraint_threshold', default=10, type=float)
 
     args = parser.parse_args()
 

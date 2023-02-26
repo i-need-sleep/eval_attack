@@ -1,6 +1,7 @@
 import pandas as pd
 
 DATA_FOLDER = '../data'
+OUTPUT_DIR = '../results/outputs'
 
 # Loading data
 def ted_to_lst(path):
@@ -28,4 +29,19 @@ def original_scores(pairs, wrapper):
     for idx, score in enumerate(scores):
         out.append((pairs[idx][0], score))
         
+    return out
+
+def csv_to_dict(path):
+    df = pd.read_csv(f'{OUTPUT_DIR}/{path}')
+    
+    out = {}
+    data = df.values.tolist()
+    for key in df.keys()[1:]:
+        out[key] = []
+        
+    for datum in data:
+        for i, d in enumerate(datum):
+            if i > 0:
+                out[df.keys()[i]].append(d)
+                
     return out
