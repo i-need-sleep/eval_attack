@@ -136,7 +136,7 @@ if __name__ == '__main__':
     parser.add_argument('--victim', default='bleu4', type=str) 
 
     # Attack
-    parser.add_argument('--n_samples', default='500', type=int)
+    parser.add_argument('--n_samples', default='5000', type=int)
 
     parser.add_argument('--goal_direction', default='down', type=str) 
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
