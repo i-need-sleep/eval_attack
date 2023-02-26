@@ -76,7 +76,7 @@ class ProbDensity():
 
             # Write the output
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.n_samples}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}_probDensity'
+            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}_probDensity'
             print(f'Saving at {save_name}')
             df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
         return
