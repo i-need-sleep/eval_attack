@@ -45,6 +45,7 @@ class ProbDensity():
         
         # Set up a modified goal function 
         self.goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
+        self.wrapper = wrapper
        
 
     def get_prob_density(self):
@@ -58,14 +59,15 @@ class ProbDensity():
         for pair_idx, pair in enumerate(self.pairs):
             # Get constrained sentences by rejection sampling
             advs = self.get_advs(pair)
-            if len(advs) == 0:
-                out.append[0, 0]
-
-            # Check whether the advs are successful attacks
             n_success = 0
-            for adv in advs:
-                if self.goal_fn._is_goal_complete(adv, 0):
-                    n_success += 1
+
+            if len(advs) != 0:
+                # Check whether the advs are successful attacks
+                self.wrapper.set_ref(pair[0], pair[1])
+                metric_outs = self.wrapper(advs)
+                for metric_out in metric_outs:
+                    if self.goal_fn._is_goal_complete(metric_out, 0):
+                        n_success += 1
 
             out['mt'].append(pair[0])
             out['ref'].append(pair[1])
