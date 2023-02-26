@@ -71,6 +71,16 @@ class GPTConstraint(textattack.constraints.Constraint):
     def get_perplexity(self, transformed_text):
         return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
     
+class EmptyConstraint(textattack.constraints.Constraint):
+    def __init__(self):
+        self.compare_against_original = True
+
+    def _check_constraint(self, transformed_text, current_text):
+        return True
+    
+    def _check_constraint_many(self, transformed_texts, reference_text):
+        return transformed_texts
+    
 if __name__ == '__main__':
     constraint = BLEURTConstraint(0.1)
 

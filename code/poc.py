@@ -52,8 +52,15 @@ def make_adv(args):
             attack.constraints[2] = utils.constraints.BLEURTConstraint(args.bleurt_threshold)
         else:
             raise NotImplementedError
+        
+    if args.no_max_words_perturbed_constraint:
+        attack.constraints[0] = utils.constraints.EmptyConstraint()
+    if args.no_word_emb_constraint:
+        attack.constraints[1] = utils.constraints.EmptyConstraint()
 
     attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
+
+    print(attack)
 
     out = {
         'mt': [],
@@ -135,6 +142,8 @@ if __name__ == '__main__':
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
 
     parser.add_argument('--only_flip_ratio_constraints', action='store_true')
+    parser.add_argument('--no_max_words_perturbed_constraint', action='store_true')
+    parser.add_argument('--no_word_emb_constraint', action='store_true')
     parser.add_argument('--flip_max_percent', default='0.1', type=float) 
     parser.add_argument('--log_prob_diff', default='5', type=float) 
     parser.add_argument('--lm_constraint', default='google', type=str) 
