@@ -27,5 +27,6 @@ python -u poc.py \
     --n_samples 100 \
     --dataset 2017-da \
     --log_prob_diff 0.2 \
-    --lm_constraint gpt2
+    --lm_constraint gpt2 \
+    --read_path poc_2017-da_bleurt_down_0.2_0.2_100_gpt2.csv
 echo "FINISH"                       # 输出起始信息

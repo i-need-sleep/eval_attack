@@ -151,7 +151,7 @@ if __name__ == '__main__':
     # Monte Carlo
     parser.add_argument('--n_trials', default=50, type=int) 
     parser.add_argument('--max_n_perturbed_words', default=3, type=int) 
-    parser.add_argument('--batch_size', default=32, type=int) # For the GPT2 perplexity constraint
+    parser.add_argument('--batch_size', default=26, type=int) # For the GPT2 perplexity constraint
     parser.add_argument('--max_rejection_sampling_steps', default=100, type=int)
 
     args = parser.parse_args()

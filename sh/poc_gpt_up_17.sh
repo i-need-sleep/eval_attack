@@ -23,9 +23,11 @@ python -u poc.py \
     --name poc \
     --goal_direction up \
     --victim gpt2 \
-    --goal_abs_delta 20 \
+    --goal_abs_delta 50 \
     --n_samples 500 \
     --dataset 2017-da \
     --bleurt_threshold 0.1 \
-    --lm_constraint bleurt
+    --lm_constraint bleurt \
+    --no_max_words_perturbed_constraint \
+    --no_word_emb_constraint
 echo "FINISH"                       # 输出起始信息
