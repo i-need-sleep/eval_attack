@@ -6,7 +6,7 @@ import evaluate
 
 class BLEURTConstraint(textattack.constraints.Constraint):
     def __init__(self, threshold):
-        self.bleurt = evaluate.load("bleurt", module_type="metric", experiment_id=datetime.datetime.now())
+        self.bleurt = evaluate.load("bleurt", module_type="metric", checkpoint='BLEURT-20', experiment_id=datetime.datetime.now())
         self.threshold = threshold
 
         self.ref = None
