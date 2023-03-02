@@ -12,6 +12,8 @@ data
 *.hi
 *.json
 *.csv
+*.pdf
+*.zip
 
 # Models
 pretrained
