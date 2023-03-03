@@ -149,7 +149,7 @@ class Perplexity(evaluate.Measurement):
         ppls = []
         loss_fct = CrossEntropyLoss(reduction="none")
 
-        for start_index in logging.tqdm(range(0, len(encoded_texts), batch_size)):
+        for start_index in range(0, len(encoded_texts), batch_size):
             end_index = min(start_index + batch_size, len(encoded_texts))
             encoded_batch = encoded_texts[start_index:end_index]
             attn_mask = attn_masks[start_index:end_index]
