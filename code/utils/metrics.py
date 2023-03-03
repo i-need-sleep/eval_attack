@@ -128,7 +128,8 @@ class SBERTWrapper(textattack.models.wrappers.ModelWrapper):
     
 class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):
-        self.perplexity = evaluate.load("./perplexity.py",  module_type= "measurement")
+        # Use a modified version of the Huggingface implementation as the original one reloads the model for eval _compute call.
+        self.perplexity = evaluate.load("./utils/perplexity.py",  module_type= "measurement")
         self.model = None
 
         self.mt = None

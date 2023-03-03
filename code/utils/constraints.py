@@ -38,7 +38,8 @@ class BLEURTConstraint(textattack.constraints.Constraint):
     
 class GPTConstraint(textattack.constraints.Constraint):
     def __init__(self, threshold):
-        self.perplexity = evaluate.load("perplexity",  module_type= "measurement", experiment_id=datetime.datetime.now())
+        # Use a modified version of the Huggingface implementation as the original one reloads the model for eval _compute call.
+        self.perplexity = evaluate.load("./utils/perplexity.py",  module_type= "measurement")
         self.threshold = threshold
 
         self.mt = None
