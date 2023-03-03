@@ -85,8 +85,8 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         
         config = BleurtConfig.from_pretrained(checkpoint)
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.bleurt.to(device)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.bleurt.to(self.device)
         self.bleurt.eval()
         self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
 
@@ -104,8 +104,8 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         out = [] # [score, ...]
 
         with torch.no_grad():
-            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt')
-            out = self.bleurt(**inputs).logits.flatten().tolist()
+            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt').to(self.device)
+            out = self.bleurt(**inputs).logits.flatten().cpu().tolist()
 
         return out
     
