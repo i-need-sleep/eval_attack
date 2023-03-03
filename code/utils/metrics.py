@@ -81,14 +81,14 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        checkpoint = 'BLEURT-20'
+        checkpoint = 'lucadiliello/BLEURT-20'
         
-        config = BleurtConfig.from_pretrained('lucadiliello/BLEURT-20-D12')
-        self.bleurt = BleurtForSequenceClassification.from_pretrained('lucadiliello/BLEURT-20-D12') 
+        config = BleurtConfig.from_pretrained(checkpoint)
+        self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.bleurt.to(device)
         self.bleurt.eval()
-        self.tokenizer = BleurtTokenizer.from_pretrained('lucadiliello/BLEURT-20-D12')
+        self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
 
         self.model = None
 
@@ -106,7 +106,7 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         with torch.no_grad():
             inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt')
             out = self.bleurt(**inputs).logits.flatten().tolist()
-              
+
         return out
     
 class SBERTWrapper(textattack.models.wrappers.ModelWrapper):  

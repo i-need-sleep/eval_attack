@@ -147,7 +147,8 @@ if __name__ == '__main__':
     # parser.add_argument('--word_emb_constraint', action='store_true')
     # parser.add_argument('--google_lm_log_prob_diff', default='5', type=float) 
     parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
-    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
+    # REMEMBER TO UPDATE THE CONSTRAINT
+    # parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
 
     args = parser.parse_args()
 
