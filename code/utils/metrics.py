@@ -1,9 +1,11 @@
 import datetime
 
+import torch
 import numpy as np
 import textattack
 import evaluate
 from sentence_transformers import SentenceTransformer
+from bleurt_pytorch import BleurtConfig, BleurtForSequenceClassification, BleurtTokenizer
 
 PRETRAINED_DIR = '../pretrained'
 
@@ -79,7 +81,15 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        self.bleurt = evaluate.load('bleurt', 'BLEURT-20', module_type='metric', experiment_id=datetime.datetime.now())
+        checkpoint = 'BLEURT-20'
+        
+        config = BleurtConfig.from_pretrained('lucadiliello/BLEURT-20-D12')
+        self.bleurt = BleurtForSequenceClassification.from_pretrained('lucadiliello/BLEURT-20-D12') 
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.bleurt.to(device)
+        self.bleurt.eval()
+        self.tokenizer = BleurtTokenizer.from_pretrained('lucadiliello/BLEURT-20-D12')
+
         self.model = None
 
         self.ref = None
@@ -93,11 +103,10 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
     def __call__(self, text_inputs):
         out = [] # [score, ...]
 
-        for line_idx, mt in enumerate(text_inputs):
-            
-            score = self.bleurt.compute(predictions = [mt], references = [self.ref])['scores'][0]
-            out.append(score)
-            
+        with torch.no_grad():
+            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt')
+            out = self.bleurt(**inputs).logits.flatten().tolist()
+              
         return out
     
 class SBERTWrapper(textattack.models.wrappers.ModelWrapper):  
