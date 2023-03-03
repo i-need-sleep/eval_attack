@@ -9,6 +9,7 @@ import utils.metrics
 import utils.data_utils
 import utils.attack_utils
 import utils.constraints
+import attacks
 
 OUTPUT_DIR = '../results/outputs'
 CHECKPOINT_DIR = '../results/checkpoints'
@@ -38,30 +39,18 @@ def make_adv(args):
     # Set up a modified goal function 
     goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
 
+    # Set up constraints
+    constraints = []
+    if args.gpt_constraint_threshold > 0:
+        constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
+    if args.bleurt_constraint_threshold > 0:
+        constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
+
     # Set up the attack
-    if args.only_flip_ratio_constraints:
-        attack = models.fast_genetic_modified.FasterGeneticAlgorithmJia2019MaxWordsPerturbed.build(wrapper, args)
-    else:
-        attack = textattack.attack_recipes.faster_genetic_algorithm_jia_2019.FasterGeneticAlgorithmJia2019.build(wrapper)
-
-        if args.lm_constraint == 'google':
-            attack.constraints[2].max_log_prob_diff = args.log_prob_diff
-        elif args.lm_constraint == 'gpt2':
-            attack.constraints[2] = utils.constraints.GPTConstraint(args.gpt_constraint_threshold)
-        elif args.lm_constraint == 'bleurt':
-            attack.constraints[2] = utils.constraints.BLEURTConstraint(args.bleurt_threshold)
-        else:
-            raise NotImplementedError
-        
-    if args.no_max_words_perturbed_constraint:
-        attack.constraints[0] = utils.constraints.EmptyConstraint()
-    if args.no_word_emb_constraint:
-        attack.constraints[1] = utils.constraints.EmptyConstraint()
-
-    attack = textattack.attack.Attack(goal_fn, attack.constraints, attack.transformation, attack.search_method)
-
+    attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args)
     print(attack)
 
+    # Set up the output file
     out = {
         'mt': [],
         'ref': [],
@@ -73,7 +62,7 @@ def make_adv(args):
     if args.read_path != '':
         out = utils.data_utils.csv_to_dict(args.read_path)
 
-    if args.lm_constraint == 'bleurt':
+    if args.bleurt_constraint_threshold > 0:
         out['cos_dist'] = []
     failed_out = []
     
@@ -121,7 +110,7 @@ def make_adv(args):
             print(lines)
             failed_out.append(lines)
 
-        # Write the output every 10 samples:
+        # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
             save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.n_samples}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
@@ -153,14 +142,14 @@ if __name__ == '__main__':
     parser.add_argument('--goal_abs_delta', default='0.05', type=float) 
 
     # Constraints
-    parser.add_argument('--only_flip_ratio_constraints', action='store_true')
-    parser.add_argument('--no_max_words_perturbed_constraint', action='store_true')
-    parser.add_argument('--no_word_emb_constraint', action='store_true')
-    parser.add_argument('--flip_max_percent', default='0.1', type=float) 
-    parser.add_argument('--log_prob_diff', default='5', type=float) 
-    parser.add_argument('--lm_constraint', default='google', type=str) 
-    parser.add_argument('--bleurt_threshold', default=0.1, type=float) 
-    parser.add_argument('--gpt_constraint_threshold', default=10, type=float)
+    # Implement me
+    # parser.add_argument('--flip_ratio_constraints', action='store_true')
+    # parser.add_argument('--flip_max_percent', default='0.1', type=float) 
+    # parser.add_argument('--max_words_perturbed_constraint', action='store_true')
+    # parser.add_argument('--word_emb_constraint', action='store_true')
+    # parser.add_argument('--google_lm_log_prob_diff', default='5', type=float) 
+    parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
+    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
 
     args = parser.parse_args()
 
