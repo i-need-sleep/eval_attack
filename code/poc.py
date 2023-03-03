@@ -41,9 +41,11 @@ def make_adv(args):
 
     # Set up constraints
     constraints = []
-    if args.gpt_constraint_threshold > 0:
+    gpt_constraint_used = args.gpt_constraint_threshold > 0
+    bleurt_constraint_used = args.bleurt_constraint_threshold > 0
+    if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
-    if args.bleurt_constraint_threshold > 0:
+    if bleurt_constraint_used > 0:
         constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
 
     # Set up the attack
@@ -80,8 +82,8 @@ def make_adv(args):
         # Compute the original score
         # Update the reference
         wrapper.set_ref(mt, ref)
-        if args.lm_constraint in ['bleurt', 'gpt2']:
-            attack.constraints[2].set_ref(mt, ref)
+        if gpt_constraint_used or bleurt_constraint_used:
+            attack.constraints[0].set_ref(mt, ref)
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
@@ -96,7 +98,7 @@ def make_adv(args):
             out['mt'].append(mt)
             out['ref'].append(ref)
 
-            if args.lm_constraint == 'bleurt':
+            if bleurt_constraint_used:
                 out['original_score'].append(attack.constraints[2].original_score)
                 out['adv_score'].append(attack.constraints[2].get_bleurt_score(lines[2]))
                 out['cos_dist'].append(lines[0].split('>')[1])
@@ -110,7 +112,9 @@ def make_adv(args):
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
+            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}\
+                {"_gpt" if gpt_constraint_used else ""}\
+                {"_bleurt" if bleurt_constraint_used else ""}'
             print(f'Saving at {save_name}')
             df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)

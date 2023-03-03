@@ -128,7 +128,7 @@ class SBERTWrapper(textattack.models.wrappers.ModelWrapper):
     
 class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):
-        self.perplexity = evaluate.load("perplexity",  module_type= "measurement")
+        self.perplexity = evaluate.load("./perplexity.py",  module_type= "measurement")
         self.model = None
 
         self.mt = None
