@@ -148,7 +148,7 @@ if __name__ == '__main__':
     # parser.add_argument('--google_lm_log_prob_diff', default='5', type=float) 
     parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     # REMEMBER TO UPDATE THE CONSTRAINT
-    # parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
+    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
 
     args = parser.parse_args()
 
