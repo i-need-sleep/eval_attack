@@ -71,9 +71,6 @@ def make_adv(args):
         if pair_idx % 5 == 0:
             print(pair_idx)
 
-        if pair_idx >= args.n_samples:
-            break
-
         # Skip the samples already covered
         if len(out['mt']) > pair_idx:
             continue
@@ -113,7 +110,7 @@ def make_adv(args):
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.n_samples}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
+            save_name = f'{args.name}_{args.dataset}_{args.victim}_{args.goal_direction}_{args.goal_abs_delta}_{args.log_prob_diff}_{args.lm_constraint}{"_precFlipOnly" if args.only_flip_ratio_constraints else ""}'
             print(f'Saving at {save_name}')
             df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)
@@ -133,9 +130,6 @@ if __name__ == '__main__':
 
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
-
-    # Attack
-    parser.add_argument('--n_samples', default='5000', type=int)
 
     # Goal
     parser.add_argument('--goal_direction', default='down', type=str) 
