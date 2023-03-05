@@ -62,7 +62,7 @@ def make_adv(args):
     }
     
     if args.read_path != '':
-        out = utils.data_utils.csv_to_dict(args.read_path)
+        out, covered_len = utils.data_utils.csv_to_dict(args.read_path)
 
     if args.bleurt_constraint_threshold > 0:
         out['cos_dist'] = []
@@ -74,7 +74,7 @@ def make_adv(args):
             print(pair_idx)
 
         # Skip the samples already covered
-        if len(out['mt']) > pair_idx:
+        if pair_idx < covered_len:
             continue
         
         mt, ref = pair
