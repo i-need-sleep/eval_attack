@@ -27,5 +27,7 @@ python -u poc.py \
     --dataset 2017-da \
     --goal_direction down \
     --goal_abs_delta 0.2 \
-    --gpt_constraint_threshold 10
+    --gpt_constraint_threshold 10 \
+    --bleurt_checkpoint BLEURT-20 \
+    --read_path poc_2017-da_bleurt_down_0.2_gpt
 echo "FINISH"                       # 输出起始信息

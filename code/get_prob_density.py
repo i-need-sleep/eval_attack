@@ -143,6 +143,7 @@ if __name__ == '__main__':
     
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
+    parser.add_argument('--bleurt_checkpoint', default='bleurt-base-128', type=str) 
 
     # Attack
     # To be implemented

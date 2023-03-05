@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=probDensity_bleurt_down_17_gpt_       # 任务名
+#SBATCH --job-name=poc_bleurt_down_0.4       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -21,11 +21,12 @@ echo "START"               # 输出起始信息
 source /apps/local/anaconda3/bin/activate adv          # 调用 virtual env
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
-python -u get_prob_density.py \
+python -u poc.py \
     --name poc \
     --victim bleurt \
+    --dataset 2017-da \
     --goal_direction down \
     --goal_abs_delta 0.4 \
-    --dataset 2017-da \
-    --lm_constraint gpt2
+    --gpt_constraint_threshold 10 \
+    --bleurt_checkpoint BLEURT-20
 echo "FINISH"                       # 输出起始信息
