@@ -56,7 +56,14 @@ class ProbDensity():
             'n_successful': []
         }
 
+        if self.args.read_path != '':
+            out = utils.data_utils.csv_to_dict(self.args.read_path)
+
         for pair_idx, pair in enumerate(self.pairs):
+            
+            if pair_idx < len(out):
+                continue
+
             # Get constrained sentences by rejection sampling
             advs = self.get_advs(pair)
             n_success = 0
@@ -132,6 +139,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='unnamed', type=str) 
 
     parser.add_argument('--dataset', default='wmt-zhen-tedtalks', type=str)
+    parser.add_argument('--read_path', default='', type=str)
     
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 

@@ -61,6 +61,7 @@ def make_adv(args):
         'adv_score': [],
     }
     
+    covered_len = 0
     if args.read_path != '':
         out, covered_len = utils.data_utils.csv_to_dict(args.read_path)
 
