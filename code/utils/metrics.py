@@ -80,10 +80,9 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         return out
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
-    def __init__(self):
-        checkpoint = 'lucadiliello/BLEURT-20'
+    def __init__(self, checkpoint):
+        checkpoint = f'lucadiliello/{checkpoint}'
         
-        config = BleurtConfig.from_pretrained(checkpoint)
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.bleurt.to(self.device)
@@ -138,7 +137,7 @@ class SBERTWrapper(textattack.models.wrappers.ModelWrapper):
 class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):
         # Use a modified version of the Huggingface implementation as the original one reloads the model for eval _compute call.
-        self.perplexity = evaluate.load("./utils/perplexity.py",  module_type= "measurement")
+        self.perplexity = evaluate.load("./utils/perplexity.py",  module_type= "measurement", experiment_id=datetime.datetime.now())
         self.model = None
 
         self.mt = None

@@ -25,7 +25,7 @@ def make_adv(args):
     elif args.victim == 'bertscore':
         wrapper = utils.metrics.BertScoreWrapper()
     elif args.victim == 'bleurt':
-        wrapper = utils.metrics.BLEURTWrapper()
+        wrapper = utils.metrics.BLEURTWrapper(args.bleurt_checkpoint)
     elif args.victim == 'sbert':
         wrapper = utils.metrics.SBERTWrapper()
     elif args.victim == 'gpt2':
@@ -132,6 +132,7 @@ if __name__ == '__main__':
 
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
+    parser.add_argument('--bleurt_checkpoint', default='bleurt-base-128', type=str) 
 
     # Goal
     parser.add_argument('--goal_direction', default='down', type=str) 
