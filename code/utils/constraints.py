@@ -2,7 +2,10 @@ import datetime
 
 import textattack
 import evaluate
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
+PRETRAINED_DIR = '../pretrained'
 
 class BLEURTConstraint(textattack.constraints.Constraint):
     def __init__(self, threshold):
@@ -81,6 +84,47 @@ class EmptyConstraint(textattack.constraints.Constraint):
     
     def _check_constraint_many(self, transformed_texts, reference_text):
         return transformed_texts
+    
+class SBERTConstraint(textattack.constraints.Constraint):
+    def __init__(self, threshold):
+        # Use a modified version of the Huggingface implementation as the original one reloads the model for eval _compute call.
+        self.sbert = SentenceTransformer(('sentence-transformers/all-distilroberta-v1'), cache_folder=PRETRAINED_DIR)
+        self.threshold = threshold
+
+        self.mt = None
+        self.compare_against_original = True
+    
+    # Update the ref for each sample
+    def set_ref(self, mt, _):
+        self.mt = mt
+
+    def get_cos_dist(self, s1, s2):
+        embs = self.sbert.encode([s1, s2])
+        out = np.sum(embs[0] * embs[1])
+        return out
+
+    def _check_constraint(self, transformed_text, current_text):
+        score = self.get_cos_dist(self.mt, transformed_text.text)
+        if score > self.threshold:
+            return True
+        return False
+    
+    def _check_constraint_many(self, transformed_texts, reference_text, raw_text = False):
+        if raw_text:
+            advs = [t for t in transformed_texts]
+        else:
+            advs = [t.text for t in transformed_texts]
+        embs = self.sbert.encode([self.mt] + advs)
+
+        out = []
+        for idx, text in enumerate(transformed_texts):
+            score = np.sum(embs[0] * embs[idx + 1])
+            if score > self.threshold:
+                out.append(text) 
+        return out
+    
+    def get_perplexity(self, transformed_text):
+        return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
     
 if __name__ == '__main__':
     constraint = BLEURTConstraint(0.1)

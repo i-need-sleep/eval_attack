@@ -41,12 +41,21 @@ def make_adv(args):
 
     # Set up constraints
     constraints = []
+    constraint_update_inds = []
+    bleurt_constraint_idx = -1
     gpt_constraint_used = args.gpt_constraint_threshold > 0
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
+    sbert_constraint_threshold = args.sbert_constraint_threshold > 0
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
-    if bleurt_constraint_used > 0:
+        constraint_update_inds.append(len(constraints) - 1)
+        bleurt_constraint_idx = len(constraints) - 1
+    if bleurt_constraint_used:
         constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
+        constraint_update_inds.append(len(constraints) - 1)
+    if sbert_constraint_threshold:
+        constraints.append(utils.constraints.SBERTConstraint(args.bleurt_constraint_threshold))
+        constraint_update_inds.append(len(constraints) - 1)
 
     # Set up the attack
     if args.attack_algo == 'faster_genetic':
@@ -89,8 +98,8 @@ def make_adv(args):
         # Compute the original score
         # Update the reference
         wrapper.set_ref(mt, ref)
-        if gpt_constraint_used or bleurt_constraint_used:
-            attack.constraints[0].set_ref(mt, ref)
+        for update_idx in constraint_update_inds:
+            attack.constraints[update_idx].set_ref(mt, ref)
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
@@ -105,9 +114,9 @@ def make_adv(args):
             out['mt'].append(mt)
             out['ref'].append(ref)
 
-            if bleurt_constraint_used:
-                out['original_score'].append(attack.constraints[0].original_score)
-                out['adv_score'].append(attack.constraints[0].get_bleurt_score(lines[2]))
+            if bleurt_constraint_idx > -1:
+                out['original_score'].append(attack.constraints[bleurt_constraint_idx].original_score)
+                out['adv_score'].append(attack.constraints[bleurt_constraint_idx].get_bleurt_score(lines[2]))
                 out['cos_dist'].append(lines[0].split('>')[1])
             else:
                 out['original_score'].append(wrapper.original_score)
@@ -120,7 +129,8 @@ def make_adv(args):
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
             save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}_{args.bleurt_checkpoint if args.victim=="bleurt" else ""}\
-            _{args.goal_direction}_{args.goal_abs_delta}{"_gpt" if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}'
+            _{args.goal_direction}_{args.goal_abs_delta}{"_gpt" if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}\
+            {"_sbert" if sbert_constraint_threshold else ""}'
             print(f'Saving at {save_name}')
             df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)
@@ -155,7 +165,8 @@ if __name__ == '__main__':
     # parser.add_argument('--google_lm_log_prob_diff', default='5', type=float) 
     parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     # REMEMBER TO UPDATE THE CONSTRAINT
-    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
+    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) # 0.1
+    parser.add_argument('--sbert_constraint_threshold', default=0, type=float) # 0.7
 
     # Attack algorithm
     parser.add_argument('--attack_algo', default='faster_genetic', type=str) 
