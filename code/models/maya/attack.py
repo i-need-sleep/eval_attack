@@ -6,6 +6,7 @@ from MG.multi_granularity import MGAttacker
 from MG.paraphrase_methods import T5, GPT2Paraphraser, BackTranslation
 from MG.substitute_methods import SubstituteWithBert
 from tqdm import tqdm
+import torch
 
 
 def attack():
@@ -80,7 +81,8 @@ if __name__ == '__main__':
     if 't5' in paraphrases:
         # use T5
         print("initialize T5")
-        paraphrase_list.append(T5('cuda:0'))
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        paraphrase_list.append(T5(device))
 
     if 'gpt2' in paraphrases:
         # use gpt2 paraphrase model

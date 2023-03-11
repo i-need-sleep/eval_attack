@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 import argparse
 import utils.data_utils
+import torch
 
 
 def attack():
@@ -87,6 +88,7 @@ if __name__ == '__main__':
     # choose your paraphrase models
     paraphrases = ['t5']
     paraphrase_list = []
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if 'bt' in paraphrases:
         # use back translation
@@ -96,7 +98,7 @@ if __name__ == '__main__':
     if 't5' in paraphrases:
         # use T5
         print("initialize T5")
-        paraphrase_list.append(T5('cuda:0'))
+        paraphrase_list.append(T5(device))
 
     if 'gpt2' in paraphrases:
         # use gpt2 paraphrase model
@@ -107,7 +109,7 @@ if __name__ == '__main__':
 
     # choose your paraphrase models
     print("initialize substitution model")
-    substitution = SubstituteWithBert(victim_model, 'cuda:0')
+    substitution = SubstituteWithBert(victim_model, device)
 
     # output result
     dest_path = f'../results/outputs/MAYA_{args.bleurt_checkpoint}_{args.goal_direction}_{args.goal_abs_delta}.tsv'
