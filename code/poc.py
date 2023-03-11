@@ -49,8 +49,14 @@ def make_adv(args):
         constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
 
     # Set up the attack
-    attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args)
-    print(attack)
+    if args.attack_algo == 'faster_genetic':
+        attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args)
+    elif args.attack_algo == 'clare':
+        attack = attacks.CLARE.build(constraints, goal_fn, args)
+    elif args.attack_algo == 'input_reduction':
+        attack = attacks.InputReduction.build(constraints, goal_fn, args)
+    else:
+        raise NotImplementedError
 
     # Set up the output file
     out = {
@@ -100,8 +106,8 @@ def make_adv(args):
             out['ref'].append(ref)
 
             if bleurt_constraint_used:
-                out['original_score'].append(attack.constraints[2].original_score)
-                out['adv_score'].append(attack.constraints[2].get_bleurt_score(lines[2]))
+                out['original_score'].append(attack.constraints[0].original_score)
+                out['adv_score'].append(attack.constraints[0].get_bleurt_score(lines[2]))
                 out['cos_dist'].append(lines[0].split('>')[1])
             else:
                 out['original_score'].append(wrapper.original_score)
@@ -149,6 +155,9 @@ if __name__ == '__main__':
     parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     # REMEMBER TO UPDATE THE CONSTRAINT
     parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) #0.1
+
+    # Attack algorithm
+    parser.add_argument('--attack_algo', default='faster_genetic', type=str) 
 
     args = parser.parse_args()
 
