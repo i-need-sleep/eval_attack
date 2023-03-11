@@ -26,15 +26,17 @@ class GPT2LM:
 
 class GrammarChecker:
     def __init__(self):
-        self.lang_tool = language_tool_python.LanguageTool('en-US')
+        # self.lang_tool = language_tool_python.LanguageTool('en-US')
+        pass
 
     def check(self, sentence):
         '''
         :param sentence:  a string
         :return:
         '''
-        matches = self.lang_tool.check(sentence)
-        return len(matches)
+        # matches = self.lang_tool.check(sentence)
+        # return len(matches)
+        return 0
 
 
 class SentenceEncoder:
