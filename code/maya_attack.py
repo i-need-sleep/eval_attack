@@ -64,6 +64,7 @@ def attack():
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--name', default='unnamed', type=str) 
     parser.add_argument('--bleurt_checkpoint', default='bleurt-base-128', type=str) 
 
     # Goal
@@ -88,7 +89,6 @@ if __name__ == '__main__':
     # choose your paraphrase models
     paraphrases = ['t5']
     paraphrase_list = []
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if 'bt' in paraphrases:
         # use back translation
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if 't5' in paraphrases:
         # use T5
         print("initialize T5")
-        paraphrase_list.append(T5(device))
+        paraphrase_list.append(T5('cuda:0'))
 
     if 'gpt2' in paraphrases:
         # use gpt2 paraphrase model
@@ -109,10 +109,10 @@ if __name__ == '__main__':
 
     # choose your paraphrase models
     print("initialize substitution model")
-    substitution = SubstituteWithBert(victim_model, device)
+    substitution = SubstituteWithBert(victim_model, 'cuda:1')
 
     # output result
-    dest_path = f'../results/outputs/MAYA_{args.bleurt_checkpoint}_{args.goal_direction}_{args.goal_abs_delta}.tsv'
+    dest_path = f'../results/outputs/MAYA_{args.name}_{args.bleurt_checkpoint}_{args.goal_direction}_{args.goal_abs_delta}.tsv'
 
     attack_times = 10
 
