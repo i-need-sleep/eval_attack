@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=bleurt-base_clare_down_gpt_0.2_       # 任务名
+#SBATCH --job-name=bleurt-base_clare_down_gpt_0.2_sbert       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -29,5 +29,6 @@ python -u poc.py \
     --goal_abs_delta 0.2 \
     --gpt_constraint_threshold 10 \
     --bleurt_checkpoint bleurt-base-128 \
-    --attack_algo clare
+    --attack_algo clare \
+    --sbert_constraint_threshold 0.9
 echo "FINISH"                       # 输出起始信息
