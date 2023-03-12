@@ -3,8 +3,6 @@ import argparse
 import pandas
 import textattack
 
-import models.fast_genetic_modified
-
 import utils.metrics
 import utils.data_utils
 import utils.attack_utils
