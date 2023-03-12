@@ -89,6 +89,12 @@ if __name__ == '__main__':
     # choose your paraphrase models
     paraphrases = ['t5']
     paraphrase_list = []
+    if torch.cuda.is_available():
+        device_1 = 'cuda:0'
+        device_2 = 'cuda:1'
+    else:
+        device_1 = 'cpu'
+        device_2 = 'cpu'
 
     if 'bt' in paraphrases:
         # use back translation
@@ -98,7 +104,7 @@ if __name__ == '__main__':
     if 't5' in paraphrases:
         # use T5
         print("initialize T5")
-        paraphrase_list.append(T5('cuda:0'))
+        paraphrase_list.append(T5(device_2))
 
     if 'gpt2' in paraphrases:
         # use gpt2 paraphrase model
@@ -109,7 +115,7 @@ if __name__ == '__main__':
 
     # choose your paraphrase models
     print("initialize substitution model")
-    substitution = SubstituteWithBert(victim_model, 'cuda:1')
+    substitution = SubstituteWithBert(victim_model, device_2)
 
     # output result
     dest_path = f'../results/outputs/MAYA_{args.name}_{args.bleurt_checkpoint}_{args.goal_direction}_{args.goal_abs_delta}.tsv'
