@@ -106,10 +106,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--file_path', default='base_2017-da_bleurt_down_0.2_gpt.csv', type=str)
-    # parser.add_argument('--file_path', default='3-6/20_2017-da_bleurt_down_0.4_gpt.csv', type=str)
-    parser.add_argument('--file_path', default='input_reduction.csv', type=str)
-    # parser.add_argument('--file_path', default='3-6/base_2017-da_bleurt_down_0.4_gpt.csv', type=str)
+    parser.add_argument('--file_path', default='3-12/20-d12_2017-da_bleurt_down_0.2_gpt.csv', type=str)
 
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
