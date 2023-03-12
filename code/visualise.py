@@ -26,6 +26,8 @@ def visualise(args):
     ]
     
     for i in range(len(df)):
+        if i > args.max_n_displayed:
+            break
         if Levenshtein.distance(df['mt'][i].split(' '), df['adv'][i].split(' ')) <= args.min_edit_dist:
             continue
         spans_mt, spans_adv = make_highlight_spans(df['mt'][i].split(' '), df['adv'][i].split(' '))
@@ -106,14 +108,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--file_path', default='base_2017-da_bleurt_down_0.2_gpt.csv', type=str)
-    # parser.add_argument('--file_path', default='3-6/20_2017-da_bleurt_down_0.4_gpt.csv', type=str)
-    parser.add_argument('--file_path', default='input_reduction.csv', type=str)
-    # parser.add_argument('--file_path', default='3-6/base_2017-da_bleurt_down_0.4_gpt.csv', type=str)
+    parser.add_argument('--file_path', default='3-12/base_clare_2017-da_bleurt_bleurt-base-128_down_0.2_gpt_sbert.csv', type=str)
 
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
     parser.add_argument('--sort_by_diff', action='store_true')
+
+    # Display limit
+    parser.add_argument('--max_n_displayed', default=200, type=int) 
 
     args = parser.parse_args()
 

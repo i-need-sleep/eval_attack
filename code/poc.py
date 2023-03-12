@@ -128,7 +128,7 @@ def make_adv(args):
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}_{args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt" if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert" if sbert_constraint_threshold else ""}'
+            save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}_{args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_threshold else ""}'
             print(f'Saving at {save_name}')
             df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)
