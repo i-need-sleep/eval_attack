@@ -11,7 +11,7 @@ PRETRAINED_DIR = '../pretrained'
 
 class BleuWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        self.bleu = evaluate.load('bleu')
+        self.bleu = evaluate.load('bleu', experiment_id=datetime.datetime.now())
         self.model = None
 
         self.ref = None
@@ -35,7 +35,7 @@ class BleuWrapper(textattack.models.wrappers.ModelWrapper):
 
 class MeteorWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        self.meteor = evaluate.load('meteor')
+        self.meteor = evaluate.load('meteor', experiment_id=datetime.datetime.now())
         self.model = None
 
         self.ref = None
@@ -58,7 +58,7 @@ class MeteorWrapper(textattack.models.wrappers.ModelWrapper):
 
 class BertScoreWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
-        self.bertscore = evaluate.load('bertscore')
+        self.bertscore = evaluate.load('bertscore', experiment_id=datetime.datetime.now())
         self.model = None
 
         self.ref = None
