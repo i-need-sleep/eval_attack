@@ -64,6 +64,8 @@ def make_adv(args):
         attack = attacks.InputReduction.build(constraints, goal_fn, args)
     else:
         raise NotImplementedError
+    
+    print(attack)
 
     # Set up the output file
     out = {
