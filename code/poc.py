@@ -32,7 +32,7 @@ def make_adv(args):
     # Wrap a list from zhen-tedtalks [[mt, ref], ...]
     if args.use_normalized:
         pairs, mean, std = utils.data_utils.normalized_to_list(args.dataset)
-        wrapper.updated_normalization(mean, std)
+        wrapper.update_normalization(mean, std)
     else:
         pairs = utils.data_utils.ted_to_lst(args.dataset)
 
