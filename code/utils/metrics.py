@@ -63,11 +63,15 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
 
         self.ref = None
         self.original_score = None
+
+        self.mean = 0
+        self.std = 1
     
     # Update the ref for every sample
     def set_ref(self, mt, ref):
         self.ref = ref
         self.original_score = self([mt])[0]
+        return self.original_score
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
@@ -75,6 +79,7 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         for line_idx, mt in enumerate(text_inputs):
             
             score = self.bertscore.compute(predictions = [mt], references = [self.ref], lang='en')['f1'][0]
+            score = (score - self.mean) / self.std
             out.append(score)
             
         return out
@@ -93,18 +98,24 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
 
         self.ref = None
         self.original_score = None
+
+        self.mean = 0
+        self.std = 1
     
     # Update the ref for every sample
     def set_ref(self, mt, ref):
         self.ref = ref
         self.original_score = self([mt])[0]
+        return self.original_score
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
 
         with torch.no_grad():
             inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt').to(self.device)
-            out = self.bleurt(**inputs).logits.flatten().cpu().tolist()
+            out = self.bleurt(**inputs).logits.flatten().cpu()
+            out = (out - self.mean) / self.std
+            out = out.tolist()
 
         return out
     

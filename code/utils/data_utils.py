@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+
+import  utils.globals as uglobals
 
 DATA_FOLDER = '../data'
 OUTPUT_DIR = '../results/outputs'
@@ -48,3 +51,19 @@ def csv_to_dict(path):
                 out[df.keys()[i]].append(d)
                 
     return out, covered_len
+
+def normalized_to_list(name): 
+    #[[mt, ref], ...], mean, std
+    path = f'{uglobals.PROCESSED_DIR}/{name}.csv'
+
+    df = pd.read_csv(path)
+
+    pairs = []
+    for i in range(len(df)):
+        pairs.append([df['mt'][i], df['ref'][i]])
+    
+    scores = np.array(df['score'])
+    mean = np.mean(scores)
+    std = np.std(scores)
+
+    return pairs, mean, std

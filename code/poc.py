@@ -7,10 +7,8 @@ import utils.metrics
 import utils.data_utils
 import utils.attack_utils
 import utils.constraints
+import utils.globals as uglobals
 import attacks
-
-OUTPUT_DIR = '../results/outputs'
-CHECKPOINT_DIR = '../results/checkpoints'
 
 def make_adv(args):
     print(args)
@@ -32,7 +30,11 @@ def make_adv(args):
         raise NotImplementedError
 
     # Wrap a list from zhen-tedtalks [[mt, ref], ...]
-    pairs = utils.data_utils.ted_to_lst(args.dataset)
+    if args.use_normalized:
+        pairs, mean, std = utils.data_utils.normalized_to_list(args.dataset)
+        wrapper.updated_normalization(mean, std)
+    else:
+        pairs = utils.data_utils.ted_to_lst(args.dataset)
 
     # Set up a modified goal function 
     goal_fn = utils.attack_utils.EvalGoalFunction(wrapper, wrapper=wrapper, args=args)
@@ -69,6 +71,7 @@ def make_adv(args):
 
     # Set up the output file
     out = {
+        'idx': [],
         'mt': [],
         'ref': [],
         'adv': [],
@@ -113,6 +116,7 @@ def make_adv(args):
             out['adv'].append(lines[2])
             out['mt'].append(mt)
             out['ref'].append(ref)
+            out['idx'].append(pair_idx)
 
             if bleurt_constraint_idx > -1:
                 out['original_score'].append(attack.constraints[bleurt_constraint_idx].original_score)
@@ -123,16 +127,16 @@ def make_adv(args):
                 out['adv_score'].append(lines[0].split('>')[1])
         except:
             print(lines)
-            failed_out.append(lines)
+            failed_out.append([pair_idx, lines])
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
             save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}_{args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_threshold else ""}'
             print(f'Saving at {save_name}')
-            df.to_csv(f'{OUTPUT_DIR}/{save_name}.csv')
+            df.to_csv(f'{uglobals.OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)
-            df_failed.to_csv(f'{OUTPUT_DIR}/{save_name}_failed.csv')
+            df_failed.to_csv(f'{uglobals.OUTPUT_DIR}/{save_name}_failed.csv')
 
 
 if __name__ == '__main__':
@@ -143,8 +147,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--name', default='unnamed', type=str) 
 
+    # Data
     parser.add_argument('--dataset', default='wmt-zhen-tedtalks', type=str)
     parser.add_argument('--read_path', default='', type=str) # Continue from this output file
+    parser.add_argument('--use_normalized', action='store_true')
 
     # Victim
     parser.add_argument('--victim', default='bleu4', type=str) 
