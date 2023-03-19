@@ -72,6 +72,10 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         self.ref = ref
         self.original_score = self([mt])[0]
         return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
@@ -107,6 +111,10 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         self.ref = ref
         self.original_score = self([mt])[0]
         return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
