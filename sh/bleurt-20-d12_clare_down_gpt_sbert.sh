@@ -28,18 +28,7 @@ python -u poc.py \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 0.2 \
-    --gpt_constraint_threshold 10 \
-    --sbert_constraint_threshold 0.9 \
-    --attack_algo clare
-python -u poc.py \
-    --name 20-d12 \
-    --dataset aggregated_de-en_bleurt-20-d12 \
-    --use_normalized \
-    --victim bleurt \
-    --bleurt_checkpoint bleurt-20-d12 \
-    --goal_direction down \
-    --goal_abs_delta 0.5 \
+    --goal_abs_delta 2 \
     --gpt_constraint_threshold 10 \
     --sbert_constraint_threshold 0.9 \
     --attack_algo clare

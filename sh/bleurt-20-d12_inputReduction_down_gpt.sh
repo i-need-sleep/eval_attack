@@ -28,15 +28,6 @@ python -u poc.py \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 0.2 \
-    --attack_algo input_reduction
-python -u poc.py \
-    --name 20-d12 \
-    --dataset aggregated_de-en_bleurt-20-d12 \
-    --use_normalized \
-    --victim bleurt \
-    --bleurt_checkpoint bleurt-20-d12 \
-    --goal_direction down \
-    --goal_abs_delta 0.5 \
+    --goal_abs_delta 2 \
     --attack_algo input_reduction
 echo "FINISH"                       # 输出起始信息

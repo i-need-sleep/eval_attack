@@ -124,7 +124,7 @@ if __name__ == '__main__':
     N_SENTS = 500
     MIN_REF_LEN = 10
 
-    preproc_wmt()
+    # preproc_wmt()
 
-    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
-    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
+    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
+    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')

@@ -27,17 +27,7 @@ python -u poc.py \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --goal_abs_delta 0.2 \
-    --gpt_constraint_threshold 10 \
-    --sbert_constraint_threshold 0.9 \
-    --attack_algo clare
-python -u poc.py \
-    --name bertscore \
-    --dataset aggregated_de-en_bertscore \
-    --use_normalized \
-    --victim bertscore \
-    --goal_direction down \
-    --goal_abs_delta 0.5 \
+    --goal_abs_delta 2 \
     --gpt_constraint_threshold 10 \
     --sbert_constraint_threshold 0.9 \
     --attack_algo clare
