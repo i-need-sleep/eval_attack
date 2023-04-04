@@ -28,6 +28,6 @@ python -u poc.py \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 2 \
+    --goal_abs_delta 1 \
     --attack_algo input_reduction
 echo "FINISH"                       # 输出起始信息

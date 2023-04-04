@@ -27,6 +27,6 @@ python -u poc.py \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --goal_abs_delta 2 \
+    --goal_abs_delta 1 \
     --attack_algo input_reduction
 echo "FINISH"                       # 输出起始信息

@@ -41,6 +41,8 @@ import transformers
 from textattack.search_methods import GreedyWordSwapWIR
 from textattack.transformations import WordDeletion
 
+import utils.search_methods
+
 
 class FasterGeneticAlgorithm(AttackRecipe):
     @staticmethod
@@ -227,7 +229,7 @@ class CLARE(AttackRecipe):
         # is reached.
         #  Each step selects the highest-scoring action from the remaining ones."
         #
-        search_method = GreedySearch()
+        search_method = utils.search_methods.BeamSearch(beam_width=1)
 
         return Attack(goal_function, constraints, transformation, search_method)
     

@@ -28,7 +28,7 @@ python -u poc.py \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 2 \
+    --goal_abs_delta 1 \
     --gpt_constraint_threshold 10 \
     --sbert_constraint_threshold 0.9 \
     --attack_algo clare
