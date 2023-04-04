@@ -17,6 +17,12 @@ def preproc_wmt_year(ref_path, mt_dir, year, sys_name_idx):
     # Subsample refs
     with open(ref_path, 'r', encoding='utf-8') as f:
         refs = f.readlines()
+    
+    # Filter out short refs
+    ref_indices = []
+    for ref_idx, ref in enumerate(refs):
+        if len(ref) >= MIN_REF_LEN:
+            ref_indices.append(ref_idx)
 
     indices = random.sample([i for i in range(len(refs))], N_SENTS)
     
@@ -115,9 +121,10 @@ if __name__ == '__main__':
     
     SRC_LANG = 'de'
     REF_LANG = 'en'
-    N_SENTS = 10
+    N_SENTS = 500
+    MIN_REF_LEN = 10
 
-    # preproc_wmt()
+    preproc_wmt()
 
     # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
-    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
+    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
