@@ -126,5 +126,5 @@ if __name__ == '__main__':
 
     # preproc_wmt()
 
-    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
-    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
+    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
+    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
