@@ -34,11 +34,11 @@ def original_scores(pairs, wrapper):
         
     return out
 
-def csv_to_dict(path):
-    df = pd.read_csv(f'{OUTPUT_DIR}/{path}')
-    df_failed = pd.read_csv(f'{OUTPUT_DIR}_failed/{path}')
+def csv_to_dict(file):
+    df = pd.read_csv(f'{OUTPUT_DIR}/{file}.csv')
+    df_failed = pd.read_csv(f'{OUTPUT_DIR}/{file}_failed.csv')
 
-    covered_len = len(df) + len(df_failed) - 2
+    covered_len = len(df) + len(df_failed) 
     
     out = {}
     data = df.values.tolist()

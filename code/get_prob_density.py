@@ -57,7 +57,7 @@ class ProbDensity():
         }
 
         if self.args.read_path != '':
-            out = utils.data_utils.csv_to_dict(self.args.read_path)
+            out, _ = utils.data_utils.csv_to_dict(self.args.read_path)
 
         for pair_idx, pair in enumerate(self.pairs):
             
