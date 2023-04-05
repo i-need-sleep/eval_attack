@@ -39,33 +39,6 @@ def visualise(args):
     
     app.layout = dash.html.Div(children=content)
     
-    # for i in range(len(df)):
-    #     if i > args.max_n_displayed:
-    #         break
-    #     if Levenshtein.distance(df['mt'][i].split(' '), df['adv'][i].split(' ')) <= args.min_edit_dist:
-    #         continue
-    #     spans_mt, spans_adv = make_highlight_spans(df['mt'][i].split(' '), df['adv'][i].split(' '))
-
-    #     # Retrieve metadata
-    #     if args.data_path != '':
-    #         idx = df['idx'][i]
-    #         year = data_df['year'][i]
-    #         mt_sys = data_df['mt_sys'][i]
-
-    #         content += [
-    #             dash.html.Div(children=[f'year: {str(year)}']),
-    #             dash.html.Div(children=[f'system: {mt_sys}']),
-    #         ]
-
-
-    #     content += [
-    #         dash.html.Div(children=f'score: {df["original_score"][i]} --> {df["adv_score"][i]}'),
-    #         dash.html.Div(children=['mt: '] + spans_mt),
-    #         dash.html.Div(children=['adv: '] + spans_adv),
-    #         dash.html.Div(children=['ref: ', df['ref'][i]]),
-    #         dash.html.P(children=['       ']),
-    #     ]
-    
     disp_0_full = []
     disp_1_full = []
 

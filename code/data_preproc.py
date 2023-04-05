@@ -21,10 +21,10 @@ def preproc_wmt_year(ref_path, mt_dir, year, sys_name_idx):
     # Filter out short refs
     ref_indices = []
     for ref_idx, ref in enumerate(refs):
-        if len(ref) >= MIN_REF_LEN:
+        if len(ref.split(' ')) >= MIN_REF_LEN:
             ref_indices.append(ref_idx)
 
-    indices = random.sample([i for i in range(len(refs))], N_SENTS)
+    indices = random.sample(ref_indices, N_SENTS)
     
     # Fetch the mts
     systems = os.listdir(mt_dir)
@@ -126,5 +126,5 @@ if __name__ == '__main__':
 
     # preproc_wmt()
 
-    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
+    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
     eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')

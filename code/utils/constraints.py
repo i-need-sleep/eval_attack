@@ -127,14 +127,16 @@ class SBERTConstraint(textattack.constraints.Constraint):
         return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
     
 if __name__ == '__main__':
-    constraint = BLEURTConstraint(0.1)
+    constraint = SBERTConstraint(0.8)
 
-    mt = 'Hi! I am a machine-translated sentence.'
-    ref = 'Hi! I am a human-translated sentence.'
+    mt = 'Hi! I am written by a human.'
+    ref = 'Hi! I am written by a person.'
     adv = 'Hi! I am a perturbed sentence.'
 
     print(1)
     constraint.set_ref(mt, ref)
     print(2)
+    out = constraint._check_constraint(ref, mt)
+    print(out)
     out = constraint._check_constraint(adv, mt)
     print(out)

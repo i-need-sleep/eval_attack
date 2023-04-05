@@ -35,6 +35,7 @@ def visualise(args):
             break
         if Levenshtein.distance(df['mt'][i].split(' '), df['adv'][i].split(' ')) <= args.min_edit_dist:
             continue
+
         spans_mt, spans_adv = make_highlight_spans(df['mt'][i].split(' '), df['adv'][i].split(' '))
 
         # Retrieve metadata
@@ -130,38 +131,18 @@ if __name__ == '__main__':
     # parser.add_argument('--data_path', default='', type=str)
     parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
 
-    # parser.add_argument('--file_path', default='3-20/20-d12_clare_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.2_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/20-d12_clare_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.5_gpt10.0_sbert0.9.csv', type=str)
-    parser.add_argument('--file_path', default='3-20/20-d12_clare_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
-
-    # parser.add_argument('--file_path', default='3-20/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.2_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.5_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
-
-    # parser.add_argument('--file_path', default='3-20/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.2.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.5.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0.csv', type=str)
-
+    parser.add_argument('--file_path', default='4-5/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0.csv', type=str)
+    
     # parser.add_argument('--data_path', default='processed/aggregated_de-en_bertscore.csv', type=str)
 
-    # parser.add_argument('--file_path', default='3-20/bertscore_clare_aggregated_de-en_bertscore_bertscore__down_0.2_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_clare_aggregated_de-en_bertscore_bertscore__down_0.5_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_clare_aggregated_de-en_bertscore_bertscore__down_1.0_gpt10.0_sbert0.9.csv', type=str)
-
-    # parser.add_argument('--file_path', default='3-20/bertscore_faster_genetic_aggregated_de-en_bertscore_bertscore__down_0.2_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_faster_genetic_aggregated_de-en_bertscore_bertscore__down_0.5_gpt10.0_sbert0.9.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_faster_genetic_aggregated_de-en_bertscore_bertscore__down_1.0_gpt10.0_sbert0.9.csv', type=str)
-
-    # parser.add_argument('--file_path', default='3-20/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore__down_0.2.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore__down_0.5.csv', type=str)
-    # parser.add_argument('--file_path', default='3-20/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore__down_1.0.csv', type=str)
+    # parser.add_argument('--file_path', default='4-5/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore_down_1.0.csv', type=str)
     
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
     parser.add_argument('--sort_by_diff', action='store_true')
 
     # Display limit
-    parser.add_argument('--max_n_displayed', default=400, type=int) 
+    parser.add_argument('--max_n_displayed', default=4000, type=int) 
 
     args = parser.parse_args()
 
