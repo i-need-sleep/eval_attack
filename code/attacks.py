@@ -149,7 +149,7 @@ class FasterGeneticAlgorithm(AttackRecipe):
         # Perform word substitution with a genetic algorithm.
         #
         search_method = AlzantotGeneticAlgorithm(
-            pop_size=30, max_iters=20, post_crossover_check=False
+            pop_size=30, max_iters=15, post_crossover_check=False
             # pop_size=60, max_iters=40, post_crossover_check=False
         )
 
@@ -230,7 +230,7 @@ class CLARE(AttackRecipe):
         # is reached.
         #  Each step selects the highest-scoring action from the remaining ones."
         #
-        search_method = utils.search_methods.BeamSearch(beam_width=1)
+        search_method = utils.search_methods.BeamSearch(beam_width=1, max_n_iter=5)
 
         return Attack(goal_function, constraints, transformation, search_method)
     
