@@ -119,12 +119,12 @@ def eval_preproced(preproced_path, metric_name, normalization):
 
 if __name__ == '__main__':
     
-    SRC_LANG = 'de'
+    SRC_LANG = 'cs'
     REF_LANG = 'en'
-    N_SENTS = 500
+    N_SENTS = 100
     MIN_REF_LEN = 10
 
     # preproc_wmt()
 
-    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
+    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
     eval_preproced(f'{uglobals.PROCESSED_DIR}/aggreagated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')

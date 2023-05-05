@@ -123,15 +123,12 @@ class SBERTConstraint(textattack.constraints.Constraint):
                 out.append(text) 
         return out
     
-    def get_perplexity(self, transformed_text):
-        return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
-    
 if __name__ == '__main__':
     constraint = SBERTConstraint(0.8)
 
-    mt = 'Hi! I am written by a human.'
-    ref = 'Hi! I am written by a person.'
-    adv = 'Hi! I am a perturbed sentence.'
+    mt = 'Airline Emirates ordered two standard 50 Boeing 777 planes with an option of a further 20 aircraft .'
+    ref = 'Emirates airline orders 50 twin-aisle Boeing 777 jetliners with an option for 20 more.'
+    adv = 'Airline Canada ordered two standard 50 Boeing 777 planes with an option of a second aircraft . '
 
     print(1)
     constraint.set_ref(mt, ref)

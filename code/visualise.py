@@ -22,9 +22,15 @@ def visualise(args):
         data_df = pd.read_csv(data_path)
 
     # Sorting
-    if args.sort_by_diff:
+    if args.sorting == 'diff':
         df['diff'] = df["original_score"] - df["adv_score"]
         df = df.sort_values('diff', ascending=False, ignore_index=True)
+    elif args.sorting == 'random':
+        df = df.sample(frac = 1)
+    elif args.sorting == '':
+        pass
+    else:
+        raise NotImplementedError
 
     content = [
         dash.html.Div(children=file_path),
@@ -131,18 +137,17 @@ if __name__ == '__main__':
     # parser.add_argument('--data_path', default='', type=str)
     parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
 
-    parser.add_argument('--file_path', default='4-5/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0.csv', type=str)
+    # parser.add_argument('--file_path', default='4-11/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
+    parser.add_argument('--file_path', default='4-11/20-d12_clare_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
     
     # parser.add_argument('--data_path', default='processed/aggregated_de-en_bertscore.csv', type=str)
 
-    # parser.add_argument('--file_path', default='4-5/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore_down_1.0.csv', type=str)
-    
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
-    parser.add_argument('--sort_by_diff', action='store_true')
+    parser.add_argument('--sorting', default='random', type=str)
 
     # Display limit
-    parser.add_argument('--max_n_displayed', default=4000, type=int) 
+    parser.add_argument('--max_n_displayed', default=500, type=int) 
 
     args = parser.parse_args()
 
