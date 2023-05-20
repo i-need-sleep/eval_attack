@@ -135,12 +135,11 @@ if __name__ == '__main__':
 
     # Paths
     # parser.add_argument('--data_path', default='', type=str)
-    parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
+    # parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
+    parser.add_argument('--data_path', default='processed/aggregated_cs-en_bleurt-20-d12.csv', type=str)
 
-    # parser.add_argument('--file_path', default='4-11/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
-    parser.add_argument('--file_path', default='4-11/20-d12_clare_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
+    parser.add_argument('--file_path', default='5-17/20-d12_faster_genetic_aggregated_cs-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
     
-    # parser.add_argument('--data_path', default='processed/aggregated_de-en_bertscore.csv', type=str)
 
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
