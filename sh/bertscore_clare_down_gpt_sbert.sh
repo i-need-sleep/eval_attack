@@ -30,6 +30,6 @@ python -u poc.py \
     --goal_abs_delta 1 \
     --gpt_constraint_threshold 10 \
     --sbert_constraint_threshold 0.9 \
-    --attack_algo clare \
-    --read_path bertscore_clare_aggregated_de-en_bertscore_bertscore_down_1.0_gpt10.0_sbert0.9
+    --attack_algo clare
+    # --read_path bertscore_clare_aggregated_de-en_bertscore_bertscore_down_1.0_gpt10.0_sbert0.9
 echo "FINISH"                       # 输出起始信息

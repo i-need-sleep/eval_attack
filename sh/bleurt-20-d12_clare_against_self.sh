@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=bleurt-20-d12_genetic_down_gpt_sbert       # 任务名
+#SBATCH --job-name=bleurt-20-d12_clare_against_self       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -29,8 +29,6 @@ python -u poc.py \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
     --goal_abs_delta 1 \
-    --gpt_constraint_threshold 10 \
-    --sbert_constraint_threshold 0.9 \
-    --attack_algo faster_genetic
-    # --read_path 20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9
+    --attack_algo clare \
+    --bleurt_constraint_threshold 0.1
 echo "FINISH"                       # 输出起始信息
