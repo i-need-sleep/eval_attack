@@ -44,20 +44,22 @@ def make_adv(args):
     constraint_update_inds = []
     bleurt_constraint_idx = -1
     gpt_constraint_used = args.gpt_constraint_threshold > 0
+    sbert_constraint_used = args.sbert_constraint_threshold > 0
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
-    sbert_constraint_threshold = args.sbert_constraint_threshold > 0
-    bleurt_constraint_threshold = args.bleurt_constraint_threshold > 0
-    bertscore_constraint_threshold = args.bertscore_constraint_threshold > 0
+    bertscore_constraint_used = args.bertscore_constraint_threshold > 0
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
-    if sbert_constraint_threshold:
+    if sbert_constraint_used:
         constraints.append(utils.constraints.SBERTConstraint(args.sbert_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
-    if bleurt_constraint_threshold:
-        constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
+    if bleurt_constraint_used:
+        constraints.append(utils.constraints.BLEURTConstraint(mean=args.bleurt_constraint_mean, std=args.bleurt_constraint_std, threshold=args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         bleurt_constraint_idx = len(constraints) - 1
+    if bertscore_constraint_used:
+        constraints.append(utils.constraints.BERTScoreConstraint(mean=args.bertscore_constraint_mean, std=args.bertscore_constraint_std, threshold=args.bertscore_constraint_threshold))
+        constraint_update_inds.append(len(constraints) - 1)
 
     # Set up the attack
     if args.attack_algo == 'faster_genetic':
@@ -122,13 +124,13 @@ def make_adv(args):
             out['ref'].append(ref)
             out['idx'].append(pair_idx)
 
-            if bleurt_constraint_idx > -1:
-                out['original_score'].append(attack.constraints[bleurt_constraint_idx].original_score)
-                out['adv_score'].append(attack.constraints[bleurt_constraint_idx].get_bleurt_score(lines[2]))
-                out['cos_dist'].append(lines[0].split('>')[1])
-            else:
-                out['original_score'].append(wrapper.original_score)
-                out['adv_score'].append(lines[0].split('>')[1])
+            # if bleurt_constraint_idx > -1: # Swapped goal/constraints
+            #     out['original_score'].append(attack.constraints[bleurt_constraint_idx].original_score)
+            #     out['adv_score'].append(attack.constraints[bleurt_constraint_idx].get_score(lines[2]))
+            #     out['cos_dist'].append(lines[0].split('>')[1])
+            # else:
+            out['original_score'].append(wrapper.original_score)
+            out['adv_score'].append(lines[0].split('>')[1])
         except:
             print(lines)
             failed_out.append([pair_idx, lines])
@@ -136,7 +138,7 @@ def make_adv(args):
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}{"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_threshold else ""}'
+            save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}{"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}{"_sbert"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}'
             print(f'Saving at {save_name}')
             df.to_csv(f'{uglobals.OUTPUT_DIR}/{save_name}.csv')
             df_failed = pandas.DataFrame(data=failed_out)
@@ -174,8 +176,14 @@ if __name__ == '__main__':
     # REMEMBER TO UPDATE THE CONSTRAINT
     parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     parser.add_argument('--sbert_constraint_threshold', default=0, type=float) # 0.7
+
     parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) # 0.1 * std
+    parser.add_argument('--bleurt_constraint_mean', default=0, type=float) 
+    parser.add_argument('--bleurt_constraint_std', default=0, type=float) 
+
     parser.add_argument('--bertscore_constraint_threshold', default=0, type=float) # 0.1 * std
+    parser.add_argument('--bertscore_constraint_mean', default=0, type=float) # 0.1 * std
+    parser.add_argument('--bertscore_constraint_std', default=0, type=float) # 0.1 * std
 
     # Attack algorithm
     parser.add_argument('--attack_algo', default='faster_genetic', type=str) 

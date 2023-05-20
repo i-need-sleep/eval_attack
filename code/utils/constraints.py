@@ -65,7 +65,57 @@ class BLEURTConstraint(textattack.constraints.Constraint):
                 out.append(text) 
         return out
     
-    def get_bleurt_score(self, transformed_text):
+    def get_score(self, transformed_text):
+        return self([transformed_text])[0]
+    
+class BERTScoreConstraint(textattack.constraints.Constraint):
+    def __init__(self, mean=0, std=1, threshold=0.1):
+        self.bertscore = evaluate.load('bertscore', experiment_id=datetime.datetime.now())
+
+        self.model = None
+        self.ref = None
+        self.original_score = None
+        self.compare_against_original = True
+        self.threshold = threshold
+
+        self.mean = mean
+        self.std = std
+    
+    # Update the ref for every sample
+    def set_ref(self, mt, ref):
+        self.ref = ref
+        self.original_score = self([mt])[0]
+        return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
+        
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+        scores = self.bertscore.compute(predictions = text_inputs, references = [self.ref for _ in text_inputs], lang='en')['f1']
+
+        for score in scores:
+            score = (score - self.mean) / self.std
+            out.append(score)
+            
+        return out
+
+    def _check_constraint(self, transformed_text, current_text):
+        score = self([transformed_text])[0]
+        if abs(score - self.original_score) < self.threshold:
+            return True
+        return False
+    
+    def _check_constraint_many(self, transformed_texts, reference_text):
+        scores = self(transformed_texts)
+        out = []
+        for idx, text in enumerate(transformed_texts):
+            if abs(scores[idx] - self.original_score) < self.threshold:
+                out.append(text) 
+        return out
+    
+    def get_score(self, transformed_text):
         return self([transformed_text])[0]
     
 class GPTConstraint(textattack.constraints.Constraint):

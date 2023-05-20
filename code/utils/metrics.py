@@ -79,10 +79,9 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
+        scores = self.bertscore.compute(predictions = text_inputs, references = [self.ref for _ in text_inputs], lang='en')['f1']
 
-        for line_idx, mt in enumerate(text_inputs):
-            
-            score = self.bertscore.compute(predictions = [mt], references = [self.ref], lang='en')['f1'][0]
+        for score in scores:
             score = (score - self.mean) / self.std
             out.append(score)
             
