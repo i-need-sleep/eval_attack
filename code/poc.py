@@ -29,7 +29,7 @@ def make_adv(args):
     else:
         raise NotImplementedError
 
-    # Wrap a list from zhen-tedtalks [[mt, ref], ...]
+    # Wrap a list from the dataset [[mt, ref], ...]
     if args.use_normalized:
         pairs, mean, std = utils.data_utils.normalized_to_list(args.dataset)
         wrapper.update_normalization(mean, std)
@@ -46,16 +46,18 @@ def make_adv(args):
     gpt_constraint_used = args.gpt_constraint_threshold > 0
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
     sbert_constraint_threshold = args.sbert_constraint_threshold > 0
+    bleurt_constraint_threshold = args.bleurt_constraint_threshold > 0
+    bertscore_constraint_threshold = args.bertscore_constraint_threshold > 0
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
-    if bleurt_constraint_used:
+    if sbert_constraint_threshold:
+        constraints.append(utils.constraints.SBERTConstraint(args.sbert_constraint_threshold))
+        constraint_update_inds.append(len(constraints) - 1)
+    if bleurt_constraint_threshold:
         constraints.append(utils.constraints.BLEURTConstraint(args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         bleurt_constraint_idx = len(constraints) - 1
-    if sbert_constraint_threshold:
-        constraints.append(utils.constraints.SBERTConstraint(args.bleurt_constraint_threshold))
-        constraint_update_inds.append(len(constraints) - 1)
 
     # Set up the attack
     if args.attack_algo == 'faster_genetic':
@@ -167,10 +169,11 @@ if __name__ == '__main__':
     # parser.add_argument('--max_words_perturbed_constraint', action='store_true')
     # parser.add_argument('--word_emb_constraint', action='store_true')
     # parser.add_argument('--google_lm_log_prob_diff', default='5', type=float) 
-    parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     # REMEMBER TO UPDATE THE CONSTRAINT
-    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) # 0.1
+    parser.add_argument('--gpt_constraint_threshold', default=0, type=float) # 10
     parser.add_argument('--sbert_constraint_threshold', default=0, type=float) # 0.7
+    parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) # 0.1 * std
+    parser.add_argument('--bertscore_constraint_threshold', default=0, type=float) # 0.1 * std
 
     # Attack algorithm
     parser.add_argument('--attack_algo', default='faster_genetic', type=str) 

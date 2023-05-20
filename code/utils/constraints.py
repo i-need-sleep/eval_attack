@@ -1,35 +1,64 @@
 import datetime
 
+import torch
+import numpy as np
 import textattack
 import evaluate
 from sentence_transformers import SentenceTransformer
-import numpy as np
+from sentence_transformers import SentenceTransformer
+from bleurt_pytorch import BleurtConfig, BleurtForSequenceClassification, BleurtTokenizer
 
 PRETRAINED_DIR = '../pretrained'
 
 class BLEURTConstraint(textattack.constraints.Constraint):
-    def __init__(self, threshold):
-        self.bleurt = evaluate.load('bleurt', 'BLEURT-20', module_type='metric', experiment_id=datetime.datetime.now())
-        self.threshold = threshold
+    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1):
+        checkpoint = f'lucadiliello/{checkpoint}'
+        
+        self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.bleurt.to(self.device)
+        self.bleurt.eval()
+        self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
+
+        self.model = None
 
         self.ref = None
         self.original_score = None
         self.compare_against_original = True
+        self.threshold = threshold
+
+        self.mean = mean
+        self.std = std
     
-    # Update the ref for each sample
+    # Update the ref for every sample
     def set_ref(self, mt, ref):
         self.ref = ref
-        self.original_score = self.bleurt.compute(predictions = [mt], references = [ref])['scores'][0]
+        self.original_score = self([mt])[0]
         return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+
+        with torch.no_grad():
+            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt').to(self.device)
+            out = self.bleurt(**inputs).logits.flatten().cpu()
+            out = (out - self.mean) / self.std
+            out = out.tolist()
+
+        return out
 
     def _check_constraint(self, transformed_text, current_text):
-        score = self.bleurt.compute(predictions = [transformed_text], references = [self.ref])['scores'][0]
+        score = self([transformed_text])[0]
         if abs(score - self.original_score) < self.threshold:
             return True
         return False
     
     def _check_constraint_many(self, transformed_texts, reference_text):
-        scores = self.bleurt.compute(predictions = [t.text for t in transformed_texts], references = [self.ref for _ in transformed_texts])['scores']
+        scores = self(transformed_texts)
         out = []
         for idx, text in enumerate(transformed_texts):
             if abs(scores[idx] - self.original_score) < self.threshold:
@@ -37,7 +66,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         return out
     
     def get_bleurt_score(self, transformed_text):
-        return self.bleurt.compute(predictions = [transformed_text], references = [self.ref])['scores'][0]
+        return self([transformed_text])[0]
     
 class GPTConstraint(textattack.constraints.Constraint):
     def __init__(self, threshold):
