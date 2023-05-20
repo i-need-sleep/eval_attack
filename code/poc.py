@@ -69,6 +69,8 @@ def make_adv(args):
     else:
         raise NotImplementedError
     
+    attack.cuda_()
+    # TODO: Support multiple samples. See attacker.attack_dataset()
     print(attack)
 
     # Set up the output file

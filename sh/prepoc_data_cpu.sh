@@ -7,8 +7,8 @@
 #SBATCH --time=1-12:00:00           # 运行时间上限
 #SBATCH --mail-type=END             # ALL / END
 #SBATCH --mail-user=yh2689@nyu.edu  # 结束之后给哪里发邮件
-#SBATCH --output=./logs/poc/%x%A.out           # 正常输出写入的文件
-#SBATCH --error=./logs/poc/%x%A.err            # 报错信息写入的文件
+#SBATCH --output=./logs/cs-en/%x%A.out           # 正常输出写入的文件
+#SBATCH --error=./logs/cs-en/%x%A.err            # 报错信息写入的文件
 #SBATCH -q cpu-512                  # 有GPU的partition
 
 nvidia-smi
