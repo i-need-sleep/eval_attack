@@ -30,5 +30,5 @@ python -u poc.py \
     --goal_direction down \
     --goal_abs_delta 1 \
     --attack_algo clare \
-    --bleurt_constraint_threshold 0.1
+    --bleurt_constraint_threshold 0.5
 echo "FINISH"                       # 输出起始信息

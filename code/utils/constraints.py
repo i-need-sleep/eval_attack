@@ -52,13 +52,13 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         return out
 
     def _check_constraint(self, transformed_text, current_text):
-        score = self([transformed_text])[0]
+        score = self(transformed_text.text)[0]
         if abs(score - self.original_score) < self.threshold:
             return True
         return False
     
     def _check_constraint_many(self, transformed_texts, reference_text):
-        scores = self(transformed_texts)
+        scores = self([t.text for t in transformed_texts])
         out = []
         for idx, text in enumerate(transformed_texts):
             if abs(scores[idx] - self.original_score) < self.threshold:
@@ -102,13 +102,13 @@ class BERTScoreConstraint(textattack.constraints.Constraint):
         return out
 
     def _check_constraint(self, transformed_text, current_text):
-        score = self([transformed_text])[0]
+        score = self([transformed_text.text])[0]
         if abs(score - self.original_score) < self.threshold:
             return True
         return False
     
     def _check_constraint_many(self, transformed_texts, reference_text):
-        scores = self(transformed_texts)
+        scores = self([t.text for t in transformed_texts])
         out = []
         for idx, text in enumerate(transformed_texts):
             if abs(scores[idx] - self.original_score) < self.threshold:

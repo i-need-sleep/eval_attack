@@ -27,6 +27,7 @@ python -u poc.py \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --attack_algo inputReduction \
-    --bleurt_constraint_threshold 0.1
+    --goal_abs_delta 1 \
+    --attack_algo input_reduction \
+    --bertscore_constraint_threshold 0.5
 echo "FINISH"                       # 输出起始信息

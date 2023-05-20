@@ -15,8 +15,8 @@ class BeamSearch(SearchMethod):
         beam_width (int): the number of candidates to retain at each step
     """
 
-    # def __init__(self, beam_width=8, max_n_iter=15):
-    def __init__(self, beam_width=8, max_n_iter=5):
+    def __init__(self, beam_width=8, max_n_iter=15):
+    # def __init__(self, beam_width=8, max_n_iter=5):
         self.beam_width = beam_width
         self.max_n_iter = max_n_iter
 
