@@ -88,7 +88,7 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         return out
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
-    def __init__(self, checkpoint):
+    def __init__(self, checkpoint, batch_size=16):
         checkpoint = f'lucadiliello/{checkpoint}'
         
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
@@ -96,6 +96,7 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         self.bleurt.to(self.device)
         self.bleurt.eval()
         self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
+        self.batch_size = batch_size
 
         self.model = None
 
@@ -119,12 +120,19 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         out = [] # [score, ...]
 
         with torch.no_grad():
-            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt').to(self.device)
-            out = self.bleurt(**inputs).logits.flatten().cpu()
-            out = (out - self.mean) / self.std
-            out = out.tolist()
+            # Split into batches
+            start_idx = 0
+            while start_idx < len(text_inputs):
+                input_batch = text_inputs[start_idx: start_idx + self.batch_size]
 
-        return out
+                inputs = self.tokenizer(input_batch, [self.ref for _ in input_batch], padding='longest', return_tensors='pt').to(self.device)
+                score = self.bleurt(**inputs).logits.flatten().cpu()
+                score = (score - self.mean) / self.std
+                out += score.tolist()
+                
+                start_idx += self.batch_size
+
+    return out
     
 class SBERTWrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):

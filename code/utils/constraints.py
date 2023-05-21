@@ -11,7 +11,7 @@ from bleurt_pytorch import BleurtConfig, BleurtForSequenceClassification, Bleurt
 PRETRAINED_DIR = '../pretrained'
 
 class BLEURTConstraint(textattack.constraints.Constraint):
-    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1):
+    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=16):
         checkpoint = f'lucadiliello/{checkpoint}'
         
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
@@ -19,6 +19,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         self.bleurt.to(self.device)
         self.bleurt.eval()
         self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
+        self.batch_size = batch_size
 
         self.model = None
 
@@ -44,10 +45,17 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         out = [] # [score, ...]
 
         with torch.no_grad():
-            inputs = self.tokenizer(text_inputs, [self.ref for _ in text_inputs], padding='longest', return_tensors='pt').to(self.device)
-            out = self.bleurt(**inputs).logits.flatten().cpu()
-            out = (out - self.mean) / self.std
-            out = out.tolist()
+            # Split into batches
+            start_idx = 0
+            while start_idx < len(text_inputs):
+                input_batch = text_inputs[start_idx: start_idx + self.batch_size]
+
+                inputs = self.tokenizer(input_batch, [self.ref for _ in input_batch], padding='longest', return_tensors='pt').to(self.device)
+                score = self.bleurt(**inputs).logits.flatten().cpu()
+                score = (score - self.mean) / self.std
+                out += score.tolist()
+                
+                start_idx += self.batch_size
 
         return out
 
