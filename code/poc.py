@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import pandas
 import textattack
@@ -87,11 +88,26 @@ def make_adv(args):
     }
     
     covered_len = 0
-    if args.read_path != '':
-        out, covered_len = utils.data_utils.csv_to_dict(args.read_path)
+    save_name = f'''
+        {args.name}
+        _{args.attack_algo}
+        _{args.dataset}
+        _{args.victim}
+        {"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}
+        _{args.goal_direction}
+        _{args.goal_abs_delta}
+        {"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}
+        {"_bleurt"+str(args.bleurt_constraint_threshold) if bleurt_constraint_used else ""}
+        {"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}
+        {"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}
+        '''
+    save_path = f'{uglobals.OUTPUT_DIR}/{save_name}.csv'
+    if os.path.exists(save_path):
+        print(f'Loaind from {save_name}')
+        out, covered_len = utils.data_utils.csv_to_dict(save_name)
 
-    if args.bleurt_constraint_threshold > 0:
-        out['cos_dist'] = []
+    if bleurt_constraint_used or bertscore_constraint_used:
+        out['constraint'] = []
     failed_out = []
     
     # Attack!
@@ -132,16 +148,20 @@ def make_adv(args):
             # else:
             out['original_score'].append(wrapper.original_score)
             out['adv_score'].append(lines[0].split('>')[1])
+
+            if bleurt_constraint_used or bertscore_constraint_used:
+                constraint_val = attack.constraints[-1].get_score(lines[2]) # Against mt.
+                out['constraint'].append(constraint_val)
         except:
             print(lines)
             failed_out.append([pair_idx, lines])
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
+            print(out)
             df = pandas.DataFrame(data=out)
-            save_name = f'{args.name}_{args.attack_algo}_{args.dataset}_{args.victim}{"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}_{args.goal_direction}_{args.goal_abs_delta}{"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}{"_bleurt" if bleurt_constraint_used else ""}{"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}{"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}'
             print(f'Saving at {save_name}')
-            df.to_csv(f'{uglobals.OUTPUT_DIR}/{save_name}.csv')
+            df.to_csv(save_path)
             df_failed = pandas.DataFrame(data=failed_out)
             df_failed.to_csv(f'{uglobals.OUTPUT_DIR}/{save_name}_failed.csv')
 
@@ -187,5 +207,16 @@ if __name__ == '__main__':
     parser.add_argument('--attack_algo', default='faster_genetic', type=str) 
 
     args = parser.parse_args()
+
+    if args.debug:
+        args.name = '20-d12'
+        args.dataset = 'aggregated_de-en_bleurt-20-d12'
+        args.use_normalized = True
+        args.victim = 'bleurt'
+        args.bleurt_checkpoint = 'bleurt-20-d12'
+        args.goal_direction = 'down'
+        args.goal_abs_delta = 1
+        args.attack_algo = 'faster_genetic'
+        args.bleurt_constraint_threshold = 0.5
 
     make_adv(args)
