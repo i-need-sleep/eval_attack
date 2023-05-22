@@ -132,7 +132,7 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
                 
                 start_idx += self.batch_size
 
-    return out
+        return out
     
 class SBERTWrapper(textattack.models.wrappers.ModelWrapper):  
     def __init__(self):
