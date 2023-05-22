@@ -32,8 +32,9 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         self.std = std
     
     # Update the ref for every sample
-    def set_ref(self, mt, ref):
-        self.ref = ref
+    # The baseline score is mt against mt
+    def set_ref(self, mt, _):
+        self.ref = mt
         self.original_score = self([mt])[0]
         return self.original_score
     
@@ -42,6 +43,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         self.std = std
 
     def __call__(self, text_inputs):
+        # Compare scores against mt
         out = [] # [score, ...]
 
         with torch.no_grad():
@@ -61,7 +63,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
 
     def _check_constraint(self, transformed_text, current_text):
         score = self(transformed_text.text)[0]
-        if abs(score - self.original_score) < self.threshold:
+        if self.original_score - score < self.threshold:
             return True
         return False
     
@@ -69,7 +71,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         scores = self([t.text for t in transformed_texts])
         out = []
         for idx, text in enumerate(transformed_texts):
-            if abs(scores[idx] - self.original_score) < self.threshold:
+            if self.original_score - scores[idx] < self.threshold: # dist(adv, mt) should be close to dist(mt, mt)
                 out.append(text) 
         return out
     
@@ -90,9 +92,10 @@ class BERTScoreConstraint(textattack.constraints.Constraint):
         self.std = std
     
     # Update the ref for every sample
-    def set_ref(self, mt, ref):
-        self.ref = ref
+    def set_ref(self, mt, _):
+        self.ref = mt
         self.original_score = self([mt])[0]
+        print(self.original_score)
         return self.original_score
     
     def update_normalization(self, mean, std):
@@ -111,7 +114,7 @@ class BERTScoreConstraint(textattack.constraints.Constraint):
 
     def _check_constraint(self, transformed_text, current_text):
         score = self([transformed_text.text])[0]
-        if abs(score - self.original_score) < self.threshold:
+        if self.original_score - score < self.threshold:
             return True
         return False
     
@@ -119,7 +122,7 @@ class BERTScoreConstraint(textattack.constraints.Constraint):
         scores = self([t.text for t in transformed_texts])
         out = []
         for idx, text in enumerate(transformed_texts):
-            if abs(scores[idx] - self.original_score) < self.threshold:
+            if self.original_score - scores[idx] < self.threshold:
                 out.append(text) 
         return out
     
@@ -160,6 +163,9 @@ class GPTConstraint(textattack.constraints.Constraint):
         return out
     
     def get_perplexity(self, transformed_text):
+        return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
+    
+    def get_score(self, transformed_text):
         return self.perplexity.compute(data=[transformed_text], model_id='gpt2')['perplexities'][0]
     
 class EmptyConstraint(textattack.constraints.Constraint):
@@ -210,6 +216,9 @@ class SBERTConstraint(textattack.constraints.Constraint):
                 out.append(text) 
         return out
     
+    def get_score(self, transformed_text):
+        return self.get_cos_dist(self.mt, transformed_text)
+
 if __name__ == '__main__':
     constraint = SBERTConstraint(0.8)
 

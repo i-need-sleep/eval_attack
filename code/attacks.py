@@ -214,7 +214,8 @@ class CLARE(AttackRecipe):
         #     skip_text_shorter_than_window=True,
         # )
         # constraints.append(use_constraint)
-        constraints = constraints_in 
+        for constraint in constraints_in:
+            constraints.append(constraint)
 
         # Goal is untargeted classification.
         # "The score is then the negative probability of predicting the gold label from f, using [x_{adv}] as the input"
@@ -248,7 +249,9 @@ class InputReduction(AttackRecipe):
         # the model changes its prediction.
         transformation = WordDeletion()
 
-        constraints = constraints_in + [RepeatModification(), StopwordModification()]
+        constraints = [RepeatModification(), StopwordModification()]
+        for constraint in constraints_in:
+            constraints.append(constraint)
         #
         # Goal is untargeted classification
         #

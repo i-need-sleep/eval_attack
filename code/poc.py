@@ -1,5 +1,6 @@
 import argparse
 import os
+import copy
 
 import pandas
 import textattack
@@ -43,8 +44,9 @@ def make_adv(args):
 
     # Set up constraints
     constraints = []
-    constraint_update_inds = []
-    bleurt_constraint_idx = -1
+    constraint_update_inds = [] # Indices in the constraints list for constraints needing an update for each sentence
+    constraint_write_inds = {} # {name: indice, ...}
+
     gpt_constraint_used = args.gpt_constraint_threshold > 0
     sbert_constraint_used = args.sbert_constraint_threshold > 0
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
@@ -52,16 +54,19 @@ def make_adv(args):
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
+        constraint_write_inds['gpt2_perplexity'] = len(constraints) - 1
     if sbert_constraint_used:
         constraints.append(utils.constraints.SBERTConstraint(args.sbert_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
+        constraint_write_inds['sbert_cos_distance'] = len(constraints) - 1
     if bleurt_constraint_used:
         constraints.append(utils.constraints.BLEURTConstraint(mean=mean, std=std, threshold=args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
-        bleurt_constraint_idx = len(constraints) - 1
+        constraint_write_inds['bleurt_constraint'] = len(constraints) - 1
     if bertscore_constraint_used:
         constraints.append(utils.constraints.BERTScoreConstraint(mean=mean, std=std, threshold=args.bertscore_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
+        constraint_write_inds['bertscore_constraint'] = len(constraints) - 1
 
     # Set up the attack
     if args.attack_algo == 'faster_genetic':
@@ -85,30 +90,34 @@ def make_adv(args):
         'adv': [],
         'original_score': [],
         'adv_score': [],
+        'score_diff': []
     }
+    for key in constraint_write_inds.keys():
+        out[key] = []
+        out[key + '_diff'] = []
     
+    # Continue from previous outputs
     covered_len = 0
-    save_name = f'''
-        {args.name}
-        _{args.attack_algo}
-        _{args.dataset}
-        _{args.victim}
-        {"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}
-        _{args.goal_direction}
-        _{args.goal_abs_delta}
-        {"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}
-        {"_bleurt"+str(args.bleurt_constraint_threshold) if bleurt_constraint_used else ""}
-        {"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}
-        {"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}
+    save_name = f'''\
+        {args.name}\
+        _{args.attack_algo}\
+        _{args.dataset}\
+        _{args.victim}\
+        {"_" + args.bleurt_checkpoint if args.victim=="bleurt" else ""}\
+        _{args.goal_direction}\
+        _{args.goal_abs_delta}\
+        {"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}\
+        {"_bleurt"+str(args.bleurt_constraint_threshold) if bleurt_constraint_used else ""}\
+        {"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}\
+        {"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}\
         '''
+    save_name = save_name.replace(' ', '')
     save_path = f'{uglobals.OUTPUT_DIR}/{save_name}.csv'
     if os.path.exists(save_path):
         print(f'Loaind from {save_name}')
         out, covered_len = utils.data_utils.csv_to_dict(save_name)
 
-    if bleurt_constraint_used or bertscore_constraint_used:
-        out['constraint'] = []
-    failed_out = []
+    failed_out = copy.deepcopy(out)
     
     # Attack!
     for pair_idx, pair in enumerate(pairs):
@@ -129,32 +138,48 @@ def make_adv(args):
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
-        lines = attack_results.str_lines()
-        
-        if args.debug:
-            print(lines)
 
         # Write the output
-        try:
+        # Successful attacks
+        if str(type(attack_results)) == "<class 'textattack.attack_results.successful_attack_result.SuccessfulAttackResult'>":
+            lines = attack_results.str_lines()
             out['adv'].append(lines[2])
             out['mt'].append(mt)
             out['ref'].append(ref)
             out['idx'].append(pair_idx)
-
-            # if bleurt_constraint_idx > -1: # Swapped goal/constraints
-            #     out['original_score'].append(attack.constraints[bleurt_constraint_idx].original_score)
-            #     out['adv_score'].append(attack.constraints[bleurt_constraint_idx].get_score(lines[2]))
-            #     out['cos_dist'].append(lines[0].split('>')[1])
-            # else:
             out['original_score'].append(wrapper.original_score)
-            out['adv_score'].append(lines[0].split('>')[1])
+            out['adv_score'].append(float(lines[0].split('>')[1]))
+            out['score_diff'] = out['adv_score'][-1] - out['original_score'][-1]
 
-            if bleurt_constraint_used or bertscore_constraint_used:
-                constraint_val = attack.constraints[-1].get_score(lines[2]) # Against mt.
-                out['constraint'].append(constraint_val)
-        except:
-            print(lines)
-            failed_out.append([pair_idx, lines])
+            # Write the values for the constraints
+            for key, idx in constraint_write_inds.items():
+                constraint_val = attack.constraints[idx].get_score(lines[2]) # Against mt.
+                out[key].append(constraint_val)
+                out[key + '_diff'].append(constraint_val - attack.constraints[idx].original_score)
+        
+        # Failed attackes
+        elif str(type(attack_results)) == "<class 'textattack.attack_results.failed_attack_result.FailedAttackResult'>":
+            adv = attack_results.perturbed_result.attacked_text.text
+            adv_score = attack_results.perturbed_result.output
+            
+            failed_out['adv'].append(adv)
+            failed_out['mt'].append(mt)
+            failed_out['ref'].append(ref)
+            failed_out['idx'].append(pair_idx)
+            failed_out['original_score'].append(wrapper.original_score)
+            failed_out['adv_score'].append(adv_score)
+            failed_out['score_diff'] = failed_out['adv_score'][-1] - failed_out['original_score'][-1]
+
+            # Write the values for the constraints
+            for key, idx in constraint_write_inds.items():
+                constraint_val = attack.constraints[idx].get_score(adv) # Against mt.
+                failed_out[key].append(constraint_val)
+                failed_out[key + '_diff'].append(constraint_val - attack.constraints[idx].original_score)
+        else:
+            raise NotImplementedError
+        print(out)
+        print(failed_out)
+        exit()
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
@@ -208,6 +233,17 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # if args.debug:
+    #     args.name = '20-d12'
+    #     args.dataset = 'aggregated_de-en_bleurt-20-d12'
+    #     args.use_normalized = True
+    #     args.victim = 'bleurt'
+    #     args.bleurt_checkpoint = 'bleurt-20-d12'
+    #     args.goal_direction = 'down'
+    #     args.goal_abs_delta = 1
+    #     args.attack_algo = 'faster_genetic'
+    #     args.bleurt_constraint_threshold = 0.5
+
     if args.debug:
         args.name = '20-d12'
         args.dataset = 'aggregated_de-en_bleurt-20-d12'
@@ -215,8 +251,8 @@ if __name__ == '__main__':
         args.victim = 'bleurt'
         args.bleurt_checkpoint = 'bleurt-20-d12'
         args.goal_direction = 'down'
-        args.goal_abs_delta = 1
-        args.attack_algo = 'faster_genetic'
-        args.bleurt_constraint_threshold = 0.5
+        args.goal_abs_delta = 0.2
+        args.attack_algo = 'input_reduction'
+        args.bleurt_constraint_threshold = 0.7
 
     make_adv(args)
