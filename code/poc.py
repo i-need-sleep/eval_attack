@@ -177,9 +177,6 @@ def make_adv(args):
                 failed_out[key + '_diff'].append(constraint_val - attack.constraints[idx].original_score)
         else:
             raise NotImplementedError
-        print(out)
-        print(failed_out)
-        exit()
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
