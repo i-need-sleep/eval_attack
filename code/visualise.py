@@ -26,7 +26,7 @@ def visualise(args):
         df['diff'] = df["original_score"] - df["adv_score"]
         df = df.sort_values('diff', ascending=False, ignore_index=True)
     elif args.sorting == 'random':
-        df = df.sample(frac = 1)
+        df = df.sample(frac = 1).reset_index(drop=True)
     elif args.sorting == '':
         pass
     else:
@@ -35,7 +35,7 @@ def visualise(args):
     content = [
         dash.html.Div(children=file_path),
     ]
-    
+    n_sents = 0
     for i in range(len(df)):
         if i > args.max_n_displayed:
             break
@@ -50,23 +50,44 @@ def visualise(args):
             year = data_df['year'][idx]
             mt_sys = data_df['mt_sys'][idx]
 
+        if args.format == 'default':
             content += [
                 dash.html.Div(children=[f'year: {str(year)}']),
                 dash.html.Div(children=[f'system: {mt_sys}']),
+                dash.html.Div(children=f'score against ref: {df["original_score"][i]} --> {df["adv_score"][i]} ({df["adv_score"][i] - df["original_score"][i]})'),
+                dash.html.Div(children=['ref: ', df['ref'][i]]),
+                dash.html.Div(children=['mt: '] + spans_mt),
+                dash.html.Div(children=['adv: '] + spans_adv),
+                dash.html.P(children=['       ']),
             ]
+        elif args.format == 'consistency':
+            if 'bleurt' in args.file_path:
+                constraint_name = 'bleurt_constraint'
+            elif 'bertscore' in args.file_path:
+                constraint_name = 'bertscore_constraint'
+            else:
+                raise NotImplementedError
+            
+            # Skip cases with the Faster Genetric Algorithm where the constraints are not met
+            if - df[constraint_name+"_diff"][i] > float(args.file_path.split(constraint_name[:-11])[-1][:-4]):
+                continue
 
-
-        content += [
-            dash.html.Div(children=f'score: {df["original_score"][i]} --> {df["adv_score"][i]}'),
-            dash.html.Div(children=['ref: ', df['ref'][i]]),
-            dash.html.Div(children=['mt: '] + spans_mt),
-            dash.html.Div(children=['adv: '] + spans_adv),
-            dash.html.P(children=['       ']),
-        ]
+            content += [
+                dash.html.Div(children=[f'year: {str(year)}']),
+                dash.html.Div(children=[f'system: {mt_sys}']),
+                dash.html.Div(children=f'score against ref: {df["original_score"][i]} --> {df["adv_score"][i]} ({df["adv_score"][i] - df["original_score"][i]})'),
+                dash.html.Div(children=f'score against mt: {df[constraint_name][i] + df[constraint_name+"_diff"][i]} --> {df[constraint_name][i]} ({df[constraint_name+"_diff"][i]})'),
+                dash.html.Div(children=['ref: ', df['ref'][i]]),
+                dash.html.Div(children=['mt: '] + spans_mt),
+                dash.html.Div(children=['adv: '] + spans_adv),
+                dash.html.P(children=['       ']),
+            ]
+            n_sents += 1
+    print(f'# Sents: {n_sents}')
     
     app.layout = dash.html.Div(children=content)
 
-    app.run_server(debug=True)
+    app.run_server(debug=False)
     return
 
 def make_highlight_spans(a, b):
@@ -135,12 +156,14 @@ if __name__ == '__main__':
 
     # Paths
     # parser.add_argument('--data_path', default='', type=str)
-    # parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
-    parser.add_argument('--data_path', default='processed/aggregated_cs-en_bleurt-20-d12.csv', type=str)
+    parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
 
-    parser.add_argument('--file_path', default='5-17/20-d12_faster_genetic_aggregated_cs-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
+    # parser.add_argument('--file_path', default='5-24/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.3_bleurt0.2.csv', type=str)
+    parser.add_argument('--file_path', default='5-24/bertscore_input_reduction_aggregated_de-en_bertscore_bertscore_down_0.3_bertscore0.2.csv', type=str)
     
-
+    # Formatting
+    parser.add_argument('--format', default='consistency', type=str)
+    
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
     parser.add_argument('--sorting', default='random', type=str)
