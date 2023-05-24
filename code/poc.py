@@ -50,6 +50,7 @@ def make_adv(args):
     gpt_constraint_used = args.gpt_constraint_threshold > 0
     sbert_constraint_used = args.sbert_constraint_threshold > 0
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
+    symmetric_bleurt_constraint_used = args.symmetric_bleurt_constraint_threshold > 0
     bertscore_constraint_used = args.bertscore_constraint_threshold > 0
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
@@ -63,6 +64,10 @@ def make_adv(args):
         constraints.append(utils.constraints.BLEURTConstraint(mean=mean, std=std, threshold=args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['bleurt_constraint'] = len(constraints) - 1
+    if symmetric_bleurt_constraint_used:
+        constraints.append(utils.constraints.SymmetricBLEURTConstraint(mean=mean, std=std, threshold=args.bleurt_constraint_threshold))
+        constraint_update_inds.append(len(constraints) - 1)
+        constraint_write_inds['symmetric_bleurt_constraint'] = len(constraints) - 1
     if bertscore_constraint_used:
         constraints.append(utils.constraints.BERTScoreConstraint(mean=mean, std=std, threshold=args.bertscore_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
@@ -108,6 +113,7 @@ def make_adv(args):
         _{args.goal_abs_delta}\
         {"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}\
         {"_bleurt"+str(args.bleurt_constraint_threshold) if bleurt_constraint_used else ""}\
+        {"_symmetric_bleurt"+str(args.bleurt_constraint_threshold) if symmetric_bleurt_constraint_used else ""}\
         {"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}\
         {"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}\
         '''
@@ -221,6 +227,7 @@ if __name__ == '__main__':
     parser.add_argument('--sbert_constraint_threshold', default=0, type=float) # 0.7
 
     parser.add_argument('--bleurt_constraint_threshold', default=0, type=float) # 0.1 * std
+    parser.add_argument('--symmetric_bleurt_constraint_threshold', default=0, type=float) # 0.1 * std
 
     parser.add_argument('--bertscore_constraint_threshold', default=0, type=float) # 0.1 * std
 
@@ -242,13 +249,13 @@ if __name__ == '__main__':
 
     if args.debug:
         args.name = '20-d12'
-        args.dataset = 'aggregated_de-en_bleurt-20-d12'
+        args.dataset = 'aggregated_de-en_bleurt-20-d12_sorted'
         args.use_normalized = True
         args.victim = 'bleurt'
         args.bleurt_checkpoint = 'bleurt-20-d12'
         args.goal_direction = 'down'
         args.goal_abs_delta = 0.2
         args.attack_algo = 'input_reduction'
-        args.bleurt_constraint_threshold = 0.7
+        args.symmetric_bleurt_constraint_threshold = 0.7
 
     make_adv(args)

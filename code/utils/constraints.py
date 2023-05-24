@@ -78,6 +78,84 @@ class BLEURTConstraint(textattack.constraints.Constraint):
     def get_score(self, transformed_text):
         return self([transformed_text])[0]
     
+class SymmetricBLEURTConstraint(textattack.constraints.Constraint):
+    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=16):
+        checkpoint = f'lucadiliello/{checkpoint}'
+        
+        self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.bleurt.to(self.device)
+        self.bleurt.eval()
+        self.tokenizer = BleurtTokenizer.from_pretrained(checkpoint)
+        self.batch_size = batch_size
+
+        self.model = None
+
+        self.ref = None
+        self.original_score = None
+        self.compare_against_original = True
+        self.threshold = threshold
+
+        self.mean = mean
+        self.std = std
+    
+    # Update the ref for every sample
+    # The baseline score is mt against mt
+    def set_ref(self, mt, _):
+        self.ref = mt
+        self.original_score = self([mt])[0]
+        return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def run_symmetric_bleurt(self, preds, refs):
+        inputs = self.tokenizer(preds, refs, padding='longest', return_tensors='pt').to(self.device)
+        scores = self.bleurt(**inputs).logits.flatten().cpu()
+
+        inputs_reversed = self.tokenizer(refs, preds, padding='longest', return_tensors='pt').to(self.device)
+        scores_reversed = self.bleurt(**inputs_reversed).logits.flatten().cpu()
+        print(scores)
+        print(scores_reversed)
+
+        return [(score + score_reversed) / 2 for (score, score_reversed) in zip(scores, scores_reversed)]
+
+    def __call__(self, text_inputs):
+        # Compare scores against mt
+        out = [] # [score, ...]
+
+        with torch.no_grad():
+            # Split into batches
+            start_idx = 0
+            while start_idx < len(text_inputs):
+                input_batch = text_inputs[start_idx: start_idx + self.batch_size]
+
+                score = self.run_symmetric_bleurt(input_batch, [self.ref for _ in input_batch])
+                score = (score - self.mean) / self.std
+                out += score.tolist()
+                
+                start_idx += self.batch_size
+
+        return out
+
+    def _check_constraint(self, transformed_text, current_text):
+        score = self(transformed_text.text)[0]
+        if self.original_score - score < self.threshold:
+            return True
+        return False
+    
+    def _check_constraint_many(self, transformed_texts, reference_text):
+        scores = self([t.text for t in transformed_texts])
+        out = []
+        for idx, text in enumerate(transformed_texts):
+            if self.original_score - scores[idx] < self.threshold: # dist(adv, mt) should be close to dist(mt, mt)
+                out.append(text) 
+        return out
+    
+    def get_score(self, transformed_text):
+        return self([transformed_text])[0]
+    
 class BERTScoreConstraint(textattack.constraints.Constraint):
     def __init__(self, mean=0, std=1, threshold=0.1):
         self.bertscore = evaluate.load('bertscore', experiment_id=datetime.datetime.now())
