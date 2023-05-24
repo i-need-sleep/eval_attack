@@ -27,7 +27,7 @@ python -u poc.py \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --goal_abs_delta 3 \
+    --goal_abs_delta 1 \
     --attack_algo faster_genetic \
-    --bertscore_constraint_threshold 0.2
+    --bertscore_constraint_threshold 0.5
 echo "FINISH"                       # 输出起始信息

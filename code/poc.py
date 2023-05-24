@@ -180,7 +180,6 @@ def make_adv(args):
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
-            print(out)
             df = pandas.DataFrame(data=out)
             print(f'Saving at {save_name}')
             df.to_csv(save_path)
