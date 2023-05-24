@@ -23,12 +23,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name 20-d12 \
-    --dataset aggregated_de-en_bleurt-20-d12 \
+    --dataset aggregated_de-en_bleurt-20-d12_sorted \
     --use_normalized \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 1 \
+    --goal_abs_delta 0.3 \
     --attack_algo input_reduction \
-    --bleurt_constraint_threshold 0.5
+    --symmetric_bleurt_constraint_threshold 0.2
 echo "FINISH"                       # 输出起始信息

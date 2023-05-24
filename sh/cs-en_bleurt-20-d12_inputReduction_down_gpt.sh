@@ -23,7 +23,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name 20-d12 \
-    --dataset aggregated_cs-en_bleurt-20-d12 \
+    --dataset aggregated_cs-en_bleurt-20-d12_sorted \
     --use_normalized \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \

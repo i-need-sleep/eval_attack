@@ -23,11 +23,11 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name bertscore \
-    --dataset aggregated_de-en_bertscore \
+    --dataset aggregated_de-en_bertscore_sorted \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --goal_abs_delta 1 \
+    --goal_abs_delta 0.3 \
     --attack_algo faster_genetic \
-    --bertscore_constraint_threshold 0.5
+    --bertscore_constraint_threshold 0.2
 echo "FINISH"                       # 输出起始信息

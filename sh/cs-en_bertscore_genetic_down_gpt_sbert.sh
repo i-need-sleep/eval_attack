@@ -23,7 +23,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
     --name bertscore \
-    --dataset aggregated_cs-en_bertscore \
+    --dataset aggregated_cs-en_bertscore_sorted \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
