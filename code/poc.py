@@ -149,7 +149,7 @@ def make_adv(args):
             out['idx'].append(pair_idx)
             out['original_score'].append(wrapper.original_score)
             out['adv_score'].append(float(lines[0].split('>')[1]))
-            out['score_diff'] = out['adv_score'][-1] - out['original_score'][-1]
+            out['score_diff'] = float(lines[0].split('>')[1]) - wrapper.original_score
 
             # Write the values for the constraints
             for key, idx in constraint_write_inds.items():
@@ -168,7 +168,7 @@ def make_adv(args):
             failed_out['idx'].append(pair_idx)
             failed_out['original_score'].append(wrapper.original_score)
             failed_out['adv_score'].append(adv_score)
-            failed_out['score_diff'] = failed_out['adv_score'][-1] - failed_out['original_score'][-1]
+            failed_out['score_diff'] = adv_score - wrapper.original_score
 
             # Write the values for the constraints
             for key, idx in constraint_write_inds.items():
@@ -180,7 +180,6 @@ def make_adv(args):
 
         # Write the output for every 10 samples:
         if pair_idx % 10 == 0:
-            print(out)
             df = pandas.DataFrame(data=out)
             print(f'Saving at {save_name}')
             df.to_csv(save_path)

@@ -95,7 +95,6 @@ class BERTScoreConstraint(textattack.constraints.Constraint):
     def set_ref(self, mt, _):
         self.ref = mt
         self.original_score = self([mt])[0]
-        print(self.original_score)
         return self.original_score
     
     def update_normalization(self, mean, std):

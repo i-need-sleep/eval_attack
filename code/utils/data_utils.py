@@ -1,3 +1,5 @@
+import copy
+
 import pandas as pd
 import numpy as np
 
@@ -54,9 +56,11 @@ def csv_to_dict(file):
 
 def normalized_to_list(name): 
     #[[mt, ref], ...], mean, std
-    path = f'{uglobals.PROCESSED_DIR}/{name}.csv'
 
+    path = f'{uglobals.PROCESSED_DIR}/{name}.csv'
     df = pd.read_csv(path)
+    print(f'Read data from: {path}')
+
 
     pairs = []
     for i in range(len(df)):
@@ -67,3 +71,23 @@ def normalized_to_list(name):
     std = np.std(scores)
 
     return pairs, mean, std
+
+def sort_csv(name, n_sent_per_sys):
+    # Resort csv from (year, system, src) to (src, system/year) so that we prioritize the variety of years with scaling up
+    path = f'{uglobals.PROCESSED_DIR}/{name}.csv'
+    df = pd.read_csv(path)
+    dict_in = df.to_dict()
+    out = copy.deepcopy(dict_in)
+
+    n_sys = len(df) / n_sent_per_sys
+
+    for key, val in dict_in.items():
+        for idx in val:
+            idx = int(idx)
+            sys_idx = idx // n_sent_per_sys
+            sent_idx = idx % n_sent_per_sys
+            new_idx = sys_idx + sent_idx * n_sys
+            out[key][new_idx] = dict_in[key][idx]
+    
+    save_path = path.replace('.csv', '_sorted.csv')
+    pd.DataFrame(out).to_csv(save_path)
