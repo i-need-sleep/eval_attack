@@ -6,8 +6,10 @@ import textattack
 import evaluate
 from sentence_transformers import SentenceTransformer
 from bleurt_pytorch import BleurtConfig, BleurtForSequenceClassification, BleurtTokenizer
+import comet
 
 PRETRAINED_DIR = '../pretrained'
+COMET_PATH = '../pretrained/comet'
 
 class BleuWrapper(textattack.models.wrappers.ModelWrapper): 
     def __init__(self):
@@ -68,7 +70,7 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         self.std = 1
     
     # Update the ref for every sample
-    def set_ref(self, mt, ref):
+    def set_ref(self, mt, ref, src):
         self.ref = ref
         self.original_score = self([mt])[0]
         return self.original_score
@@ -107,7 +109,7 @@ class BLEURTWrapper(textattack.models.wrappers.ModelWrapper):
         self.std = 1
     
     # Update the ref for every sample
-    def set_ref(self, mt, ref):
+    def set_ref(self, mt, ref, src):
         self.ref = ref
         self.original_score = self([mt])[0]
         return self.original_score
@@ -175,6 +177,56 @@ class GPT2Wrapper(textattack.models.wrappers.ModelWrapper):
 
     def __call__(self, text_inputs):
         return self.perplexity.compute(data=text_inputs, model_id='gpt2')['perplexities']
+    
+class COMETWrapper(textattack.models.wrappers.ModelWrapper): 
+    def __init__(self, batch_size=12):
+        self.model = None
+        self.batch_size = batch_size
+
+        self.ref = None
+        self.src = None
+        self.original_score = None
+
+        self.mean = 0
+        self.std = 1
+
+        # Load the model
+        path = comet.download_model('Unbabel/wmt20-comet-da', COMET_PATH)
+        self.comet = comet.load_from_checkpoint(path)
+    
+    # Update the ref for every sample
+    def set_ref(self, mt, ref, src):
+        self.ref = ref
+        self.src = src
+        self.original_score = self([mt])[0]
+        return self.original_score
+    
+    def update_normalization(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def reformat(self, text_inputs):
+        out = []
+        for mt in text_inputs:
+            out.append({
+                'src': self.src,
+                'ref': self.ref,
+                'mt': mt
+            })
+        return out
+
+    def __call__(self, text_inputs):
+        out = [] # [score, ...]
+        
+        comet_in = self.reformat(text_inputs)
+        scores = self.comet.predict(comet_in, batch_size=self.batch_size, progress_bar=False, length_batching=False).scores
+
+        # Normalize
+        for score in scores:
+            score = (score - self.mean) / self.std
+            out.append(score)
+
+        return out 
 
 if __name__ == '__main__':
     perplexity = evaluate.load("perplexity",  module_type= "measurement")

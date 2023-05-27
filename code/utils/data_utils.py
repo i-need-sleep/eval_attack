@@ -64,7 +64,7 @@ def normalized_to_list(name):
 
     pairs = []
     for i in range(len(df)):
-        pairs.append([df['mt'][i], df['ref'][i]])
+        pairs.append([df['mt'][i], df['ref'][i], df['src'][i]])
     
     scores = np.array(df['score'])
     mean = np.mean(scores)

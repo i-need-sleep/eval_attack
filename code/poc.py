@@ -134,13 +134,13 @@ def make_adv(args):
         if pair_idx < covered_len:
             continue
         
-        mt, ref = pair
+        mt, ref, src = pair
 
         # Compute the original score
         # Update the reference
-        wrapper.set_ref(mt, ref)
+        wrapper.set_ref(mt, ref, src)
         for update_idx in constraint_update_inds:
-            attack.constraints[update_idx].set_ref(mt, ref)
+            attack.constraints[update_idx].set_ref(mt, ref, src)
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
