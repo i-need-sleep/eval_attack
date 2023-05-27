@@ -80,6 +80,8 @@ def make_adv(args):
         attack = attacks.CLARE.build(constraints, goal_fn, args)
     elif args.attack_algo == 'input_reduction':
         attack = attacks.InputReduction.build(constraints, goal_fn, args)
+    elif args.attack_algo == 'deep_word_bug':
+        attack = attacks.DeepWordBug.build(constraints, goal_fn)
     else:
         raise NotImplementedError
     
@@ -120,7 +122,7 @@ def make_adv(args):
     save_name = save_name.replace(' ', '')
     save_path = f'{uglobals.OUTPUT_DIR}/{save_name}.csv'
     if os.path.exists(save_path):
-        print(f'Loaind from {save_name}')
+        print(f'Loaded from {save_name}')
         out, covered_len = utils.data_utils.csv_to_dict(save_name)
 
     failed_out = copy.deepcopy(out)
@@ -140,7 +142,7 @@ def make_adv(args):
         # Update the reference
         wrapper.set_ref(mt, ref, src)
         for update_idx in constraint_update_inds:
-            attack.constraints[update_idx].set_ref(mt, ref, src)
+            attack.constraints[update_idx].set_ref(mt, ref)
 
         # Run the attack
         attack_results = attack.attack(mt, 1)
@@ -255,7 +257,7 @@ if __name__ == '__main__':
         args.bleurt_checkpoint = 'bleurt-20-d12'
         args.goal_direction = 'down'
         args.goal_abs_delta = 0.2
-        args.attack_algo = 'input_reduction'
+        args.attack_algo = 'deep_word_bug'
         args.symmetric_bleurt_constraint_threshold = 0.7
 
     make_adv(args)

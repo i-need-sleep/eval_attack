@@ -116,8 +116,6 @@ class SymmetricBLEURTConstraint(textattack.constraints.Constraint):
 
         inputs_reversed = self.tokenizer(refs, preds, padding='longest', return_tensors='pt').to(self.device)
         scores_reversed = self.bleurt(**inputs_reversed).logits.flatten().cpu()
-        print(scores)
-        print(scores_reversed)
 
         return [(score + score_reversed) / 2 for (score, score_reversed) in zip(scores, scores_reversed)]
 
