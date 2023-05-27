@@ -88,7 +88,7 @@ class BertScoreWrapper(textattack.models.wrappers.ModelWrapper):
         return out
 
 class BLEURTWrapper(textattack.models.wrappers.ModelWrapper): 
-    def __init__(self, checkpoint, batch_size=16):
+    def __init__(self, checkpoint, batch_size=12):
         checkpoint = f'lucadiliello/{checkpoint}'
         
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 

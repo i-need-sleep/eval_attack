@@ -11,7 +11,7 @@ from bleurt_pytorch import BleurtConfig, BleurtForSequenceClassification, Bleurt
 PRETRAINED_DIR = '../pretrained'
 
 class BLEURTConstraint(textattack.constraints.Constraint):
-    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=16):
+    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=12):
         checkpoint = f'lucadiliello/{checkpoint}'
         
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
@@ -79,7 +79,7 @@ class BLEURTConstraint(textattack.constraints.Constraint):
         return self([transformed_text])[0]
     
 class SymmetricBLEURTConstraint(textattack.constraints.Constraint):
-    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=16):
+    def __init__(self, checkpoint='bleurt-20-d12', mean=0, std=1, threshold=0.1, batch_size=12):
         checkpoint = f'lucadiliello/{checkpoint}'
         
         self.bleurt = BleurtForSequenceClassification.from_pretrained(checkpoint) 
