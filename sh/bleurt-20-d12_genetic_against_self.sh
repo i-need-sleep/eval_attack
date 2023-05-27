@@ -28,7 +28,7 @@ python -u poc.py \
     --victim bleurt \
     --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 0.3 \
+    --goal_abs_delta 0.35 \
     --attack_algo faster_genetic \
-    --symmetric_bleurt_constraint_threshold 0.2
+    --symmetric_bleurt_constraint_threshold 0.3
 echo "FINISH"                       # 输出起始信息

@@ -113,7 +113,7 @@ def make_adv(args):
         _{args.goal_abs_delta}\
         {"_gpt"+str(args.gpt_constraint_threshold) if gpt_constraint_used else ""}\
         {"_bleurt"+str(args.bleurt_constraint_threshold) if bleurt_constraint_used else ""}\
-        {"_symmetric_bleurt"+str(args.bleurt_constraint_threshold) if symmetric_bleurt_constraint_used else ""}\
+        {"_symmetric_bleurt"+str(args.symmetric_bleurt_constraint_threshold) if symmetric_bleurt_constraint_used else ""}\
         {"_sbert"+str(args.sbert_constraint_threshold) if sbert_constraint_used else ""}\
         {"_bertscore"+str(args.bertscore_constraint_threshold) if bertscore_constraint_used else ""}\
         '''
