@@ -146,9 +146,9 @@ def fetch_src(src_name, file_name):
 
 if __name__ == '__main__':
     
-    SRC_LANG = 'de'
+    SRC_LANG = 'cs'
     REF_LANG = 'en'
-    N_SENTS = 500
+    N_SENTS = 100
     MIN_REF_LEN = 10
 
     # preproc_wmt()
