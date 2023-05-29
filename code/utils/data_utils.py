@@ -93,4 +93,4 @@ def sort_csv(name, n_sent_per_sys):
             out[key][new_idx] = dict_in[key][idx]
     
     save_path = path.replace('.csv', '_sorted.csv')
-    pd.DataFrame(out).to_csv(save_path)
+    pd.DataFrame(out).to_csv(save_path, index=False)

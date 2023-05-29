@@ -250,8 +250,8 @@ if __name__ == '__main__':
     #     args.bleurt_constraint_threshold = 0.5
 
     if args.debug:
-        args.name = '20-d12'
-        args.dataset = 'aggregated_de-en_bleurt-20-d12_sorted'
+        args.name = 'comet'
+        args.dataset = 'aggregated_de-en_comet_sorted'
         args.use_normalized = True
         args.victim = 'bleurt'
         args.bleurt_checkpoint = 'bleurt-20-d12'
