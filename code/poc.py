@@ -28,6 +28,8 @@ def make_adv(args):
         wrapper = utils.metrics.SBERTWrapper()
     elif args.victim == 'gpt2':
         wrapper = utils.metrics.GPT2Wrapper()
+    elif args.victim == 'comet':
+        wrapper = utils.metrics.COMETWrapper()
     else:
         raise NotImplementedError
 
