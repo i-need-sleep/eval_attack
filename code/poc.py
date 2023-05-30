@@ -259,7 +259,7 @@ if __name__ == '__main__':
         args.use_normalized = True
         args.victim = 'comet'
         args.goal_direction = 'down'
-        args.goal_abs_delta = 0.2
+        args.goal_abs_delta = 1
         args.attack_algo = 'deep_word_bug'
         args.gpt_constraint_threshold = 10
 

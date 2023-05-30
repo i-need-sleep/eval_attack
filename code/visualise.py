@@ -159,7 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
 
     # parser.add_argument('--file_path', default='5-24/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.3_bleurt0.2.csv', type=str)
-    parser.add_argument('--file_path', default='5-16/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9.csv', type=str)
+    parser.add_argument('--file_path', default='5-29/20-d12_deep_word_bug_aggregated_de-en_bleurt-20-d12_sorted_bleurt_bleurt-20-d12_down_1.0_gpt10.0.csv', type=str)
     
     # Formatting
     parser.add_argument('--format', default='default', type=str)
