@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=bertscore_genetic_against_self       # 任务名
+#SBATCH --job-name=bleurt-20-d12_deepWordBug_down_gpt       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -22,12 +22,13 @@ source /apps/local/anaconda3/bin/activate adv          # 调用 virtual env
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 export HF_HOME=/l/users/yichen.huang/misc/cache
 python -u poc.py \
-    --name bertscore \
-    --dataset aggregated_de-en_bertscore_sorted \
+    --name 20-d12 \
+    --dataset aggregated_de-en_bleurt-20-d12_sorted \
     --use_normalized \
-    --victim bertscore \
+    --victim bleurt \
+    --bleurt_checkpoint bleurt-20-d12 \
     --goal_direction down \
-    --goal_abs_delta 0.3 \
-    --attack_algo faster_genetic \
-    --bertscore_constraint_threshold 0.2
+    --goal_abs_delta 1 \
+    --gpt_constraint_threshold 10 \
+    --attack_algo deep_word_bug
 echo "FINISH"                       # 输出起始信息

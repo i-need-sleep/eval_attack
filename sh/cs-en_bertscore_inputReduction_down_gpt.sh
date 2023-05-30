@@ -28,5 +28,6 @@ python -u poc.py \
     --victim bertscore \
     --goal_direction down \
     --goal_abs_delta 1 \
+    --gpt_constraint_threshold 10 \
     --attack_algo input_reduction
 echo "FINISH"                       # 输出起始信息

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=bertscore_genetic_against_self       # 任务名
+#SBATCH --job-name=bertscore_inputReduction_down_gpt_sbert       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -27,7 +27,7 @@ python -u poc.py \
     --use_normalized \
     --victim bertscore \
     --goal_direction down \
-    --goal_abs_delta 0.3 \
-    --attack_algo faster_genetic \
-    --bertscore_constraint_threshold 0.2
+    --goal_abs_delta 1 \
+    --gpt_constraint_threshold 10 \
+    --attack_algo input_reduction
 echo "FINISH"                       # 输出起始信息

@@ -3,6 +3,7 @@ import os
 import copy
 
 import pandas
+import torch
 import textattack
 
 import utils.metrics
@@ -29,6 +30,7 @@ def make_adv(args):
     elif args.victim == 'gpt2':
         wrapper = utils.metrics.GPT2Wrapper()
     elif args.victim == 'comet':
+        torch.set_float32_matmul_precision('medium')
         wrapper = utils.metrics.COMETWrapper()
     else:
         raise NotImplementedError

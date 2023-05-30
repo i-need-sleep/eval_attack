@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=bertscore_genetic_against_self       # 任务名
+#SBATCH --job-name=bertscore_deepWordBug_against_self       # 任务名
 #SBATCH --nodes=1                   # 这里不用动 多节点脚本请查官方文档
 #SBATCH --ntasks=1                  # 这里不用动 多任务脚本请查官方文档
 #SBATCH --cpus-per-task=4           # 要几块CPU (一般4块就够用了)
@@ -28,6 +28,6 @@ python -u poc.py \
     --victim bertscore \
     --goal_direction down \
     --goal_abs_delta 0.3 \
-    --attack_algo faster_genetic \
+    --attack_algo deep_word_bug \
     --bertscore_constraint_threshold 0.2
 echo "FINISH"                       # 输出起始信息
