@@ -257,11 +257,10 @@ if __name__ == '__main__':
         args.name = 'comet'
         args.dataset = 'aggregated_de-en_comet_sorted'
         args.use_normalized = True
-        args.victim = 'bleurt'
-        args.bleurt_checkpoint = 'bleurt-20-d12'
+        args.victim = 'comet'
         args.goal_direction = 'down'
         args.goal_abs_delta = 0.2
         args.attack_algo = 'deep_word_bug'
-        args.symmetric_bleurt_constraint_threshold = 0.7
+        args.gpt_constraint_threshold = 10
 
     make_adv(args)
