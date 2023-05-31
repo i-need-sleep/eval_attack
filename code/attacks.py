@@ -62,7 +62,7 @@ import utils.search_methods
 
 class FasterGeneticAlgorithm(AttackRecipe):
     @staticmethod
-    def build(constraints_in, goal_fn, args):
+    def build(constraints_in, goal_fn, args, strict=False):
         #
         # Section 5: Experiments
         #
@@ -164,16 +164,20 @@ class FasterGeneticAlgorithm(AttackRecipe):
         #
         # Perform word substitution with a genetic algorithm.
         #
-        search_method = AlzantotGeneticAlgorithm(
-            # pop_size=30, max_iters=15, post_crossover_check=False
-            pop_size=60, max_iters=40, post_crossover_check=False
-        )
+        if strict:
+            search_method = AlzantotGeneticAlgorithm(
+                pop_size=60, max_iters=40, post_crossover_check=False
+            )
+        else:
+            search_method = AlzantotGeneticAlgorithm(
+                pop_size=30, max_iters=15, post_crossover_check=False
+            )
 
         return Attack(goal_fn, constraints, transformation, search_method)
 
 class CLARE(AttackRecipe):
     @staticmethod
-    def build(constraints_in, goal_fn, args):
+    def build(constraints_in, goal_fn, args, strict=True):
         # "This paper presents CLARE, a ContextuaLized AdversaRial Example generation model
         # that produces fluent and grammatical outputs through a mask-then-infill procedure.
         # CLARE builds on a pre-trained masked language model and modifies the inputs in a context-aware manner.
@@ -247,8 +251,10 @@ class CLARE(AttackRecipe):
         # is reached.
         #  Each step selects the highest-scoring action from the remaining ones."
         #
-        # search_method = utils.search_methods.BeamSearch(beam_width=5, max_n_iter=15)
-        search_method = utils.search_methods.BeamSearch(beam_width=2, max_n_iter=10)
+        if strict:
+            search_method = utils.search_methods.BeamSearch(beam_width=5, max_n_iter=15)
+        else:
+            search_method = utils.search_methods.BeamSearch(beam_width=2, max_n_iter=10)
 
         return Attack(goal_function, constraints, transformation, search_method)
     

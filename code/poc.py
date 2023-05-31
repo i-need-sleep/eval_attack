@@ -56,6 +56,7 @@ def make_adv(args):
     bleurt_constraint_used = args.bleurt_constraint_threshold > 0
     symmetric_bleurt_constraint_used = args.symmetric_bleurt_constraint_threshold > 0
     bertscore_constraint_used = args.bertscore_constraint_threshold > 0
+    strict_attack = False
     if gpt_constraint_used:
         constraints.append(utils.constraints.GPTConstraint(args.gpt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
@@ -65,14 +66,17 @@ def make_adv(args):
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['sbert_cos_distance'] = len(constraints) - 1
     if bleurt_constraint_used:
+        strict_attack = True
         constraints.append(utils.constraints.BLEURTConstraint(mean=mean, std=std, threshold=args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['bleurt_constraint'] = len(constraints) - 1
     if symmetric_bleurt_constraint_used:
+        strict_attack = True
         constraints.append(utils.constraints.SymmetricBLEURTConstraint(mean=mean, std=std, threshold=args.bleurt_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['symmetric_bleurt_constraint'] = len(constraints) - 1
     if bertscore_constraint_used:
+        strict_attack = True
         constraints.append(utils.constraints.BERTScoreConstraint(mean=mean, std=std, threshold=args.bertscore_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['bertscore_constraint'] = len(constraints) - 1
@@ -81,9 +85,9 @@ def make_adv(args):
     if args.attack_algo == 'faster_genetic':
         attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args)
     elif args.attack_algo == 'clare':
-        attack = attacks.CLARE.build(constraints, goal_fn, args)
+        attack = attacks.CLARE.build(constraints, goal_fn, args, strict=strict_attack)
     elif args.attack_algo == 'input_reduction':
-        attack = attacks.InputReduction.build(constraints, goal_fn, args)
+        attack = attacks.InputReduction.build(constraints, goal_fn, args, strict=strict_attack)
     elif args.attack_algo == 'deep_word_bug':
         attack = attacks.DeepWordBug.build(constraints, goal_fn)
     else:
