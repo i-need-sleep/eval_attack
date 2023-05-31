@@ -217,13 +217,10 @@ class COMETWrapper(textattack.models.wrappers.ModelWrapper):
 
     def __call__(self, text_inputs):
         out = [] # [score, ...]
-        comet_ins = self.reformat(text_inputs)
+        comet_in = self.reformat(text_inputs)
+        scores = self.comet.predict(comet_in, batch_size=self.batch_size, progress_bar=False).scores
 
-        # TODO: Why does comet not work with batching on the cluster?
-        for comet_in in comet_ins:
-            comet_in = [comet_in]
-            score = self.comet.predict(comet_in, batch_size=self.batch_size, progress_bar=False, length_batching=False).scores[0]
-
+        for score in scores:
             # Normalize
             score = (score - self.mean) / self.std
             out.append(score)
