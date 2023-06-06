@@ -99,7 +99,77 @@ def retrieve_metadata_for_annotation():
         print(file_name, metadata_file_name)
         retrieve_metadata(f'{uglobals.ANNOTATION_RAW_DIR}/{file_name}', f'{uglobals.PROCESSED_DIR}/{metadata_file_name}', f'{uglobals.ANNOTATION_METADATA_DIR}/{file_name}')
     return
-    
+
+def sort_df(df):
+    tups = [tup for tup in zip(df['year'].tolist(), df['mt_sys'].tolist(), df['metric'].tolist(), df['attack_algo'].tolist())]
+    df['year-mt_sys-metric-attack_algo'] = tups
+    tups = list(set(tups))
+    print('#Combinations:', len(tups))
+
+    slices = []
+    for tup in tups:
+        df_slice = df[df['year-mt_sys-metric-attack_algo'] == tup]
+        slices.append(df_slice)
+
+    out = slices[-1].iloc[:1]
+    slices[-1] = slices[-1].drop(slices[-1].index[0])
+    ctr = 0
+
+    while True:
+        all_empty = True
+        for df_slice in slices:
+            if len(df_slice) != 0:
+                all_empty = False
+        if all_empty:
+            break
+
+        for idx, df_slice in enumerate(slices):
+            if len(df_slice) == 0:
+                continue
+            out_line = df_slice.iloc[:1]
+            slices[idx] = df_slice.drop(df_slice.index[0])
+            out = pd.concat([out, out_line])    
+
+        if len(out) > ctr + 1000:
+            print(len(out))  
+            ctr = len(out)
+            s = 0
+            for df_slice in slices:
+                s += len(df_slice)
+            print(s)
+
+    return out
+
+def make_aggregated_csv_for_annotation():
+    # Aggregated everything into a large csv file
+
+    # Filter out the language pairs/metrics/attacks we care about
+    langs = ['de-en']
+    metrics = ['bleurt', 'bertscore']
+    attack_algos = ['clare', 'deep_word_bug', 'faster_genetic', 'input_reduction']
+
+    dfs = []
+    for file_name in os.listdir(uglobals.ANNOTATION_METADATA_DIR):
+        if 'failed' in file_name:
+            continue
+        for lang in langs:
+            for metric in metrics:
+                for attack_algo in attack_algos:
+                    if lang in file_name and metric in file_name and attack_algo in file_name:
+                        df = pd.read_csv(f'{uglobals.ANNOTATION_METADATA_DIR}/{file_name}')
+                        df['metric'] = [metric for _ in range(len(df))]
+                        df['attack_algo'] = [attack_algo for _ in range(len(df))]
+                        dfs.append(df)
+                        print(file_name)
+    assert len(dfs) == len(langs) * len(metrics) * len(attack_algos)
+
+    df = pd.concat(dfs)
+    df = sort_df(df)
+    print(df)
+    df.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated.csv')
+    return df
+
+
 
 if __name__ == '__main__':
-    retrieve_metadata_for_annotation()
+    make_aggregated_csv_for_annotation()

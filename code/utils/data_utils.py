@@ -54,6 +54,19 @@ def csv_to_dict(file):
                 
     return out, covered_len
 
+def df_to_dict(df):
+    out = {}
+    data = df.values.tolist()
+    for key in df.keys():
+        out[key] = []
+        
+    for datum in data:
+        for i, d in enumerate(datum):
+            if i > 0:
+                out[df.keys()[i]].append(d)
+                
+    return out
+
 def normalized_to_list(name): 
     #[[mt, ref], ...], mean, std
 
