@@ -81,13 +81,14 @@ def make_adv(args):
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['bertscore_constraint'] = len(constraints) - 1
 
+    print(f'strict: {strict_attack}')
     # Set up the attack
     if args.attack_algo == 'faster_genetic':
-        attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args)
+        attack = attacks.FasterGeneticAlgorithm.build(constraints, goal_fn, args, strict=strict_attack)
     elif args.attack_algo == 'clare':
         attack = attacks.CLARE.build(constraints, goal_fn, args, strict=strict_attack)
     elif args.attack_algo == 'input_reduction':
-        attack = attacks.InputReduction.build(constraints, goal_fn, args, strict=strict_attack)
+        attack = attacks.InputReduction.build(constraints, goal_fn, args)
     elif args.attack_algo == 'deep_word_bug':
         attack = attacks.DeepWordBug.build(constraints, goal_fn)
     else:
