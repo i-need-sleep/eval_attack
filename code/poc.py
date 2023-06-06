@@ -76,7 +76,7 @@ def make_adv(args):
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['symmetric_bleurt_constraint'] = len(constraints) - 1
     if bertscore_constraint_used:
-        strict_attack = True
+        # strict_attack = True
         constraints.append(utils.constraints.BERTScoreConstraint(mean=mean, std=std, threshold=args.bertscore_constraint_threshold))
         constraint_update_inds.append(len(constraints) - 1)
         constraint_write_inds['bertscore_constraint'] = len(constraints) - 1
@@ -133,8 +133,9 @@ def make_adv(args):
     if os.path.exists(save_path):
         print(f'Loaded from {save_name}')
         out, covered_len = utils.data_utils.csv_to_dict(save_name)
+        failed_out, covered_len = utils.data_utils.csv_to_dict(save_name.replace('.csv, _failed.csv'))
 
-    failed_out = copy.deepcopy(out)
+    failed_out = copy.deepcopy(failed_out)
     
     # Attack!
     for pair_idx, pair in enumerate(pairs):

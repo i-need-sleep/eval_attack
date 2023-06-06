@@ -166,7 +166,7 @@ class FasterGeneticAlgorithm(AttackRecipe):
         #
         if strict:
             search_method = AlzantotGeneticAlgorithm(
-                pop_size=60, max_iters=40, post_crossover_check=False
+                pop_size=60, max_iters=40, post_crossover_check=True
             )
         else:
             search_method = AlzantotGeneticAlgorithm(
