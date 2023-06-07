@@ -134,8 +134,8 @@ def make_adv(args):
         print(f'Loaded from {save_name}')
         out, covered_len = utils.data_utils.csv_to_dict(save_name)
         failed_out, covered_len = utils.data_utils.csv_to_dict(save_name.replace('.csv, _failed.csv'))
-
-    failed_out = copy.deepcopy(failed_out)
+    else:
+        failed_out = copy.deepcopy(out)
     
     # Attack!
     for pair_idx, pair in enumerate(pairs):
