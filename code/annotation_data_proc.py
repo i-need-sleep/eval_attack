@@ -1,9 +1,12 @@
 import os
 import random
+import copy
 
 import torch
 import pandas as pd
 import evaluate
+import nltk
+import numpy as np
 
 import utils.globals as uglobals
 
@@ -165,11 +168,144 @@ def make_aggregated_csv_for_annotation():
 
     df = pd.concat(dfs)
     df = sort_df(df)
+    df = df.reset_index()
     print(df)
     df.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated.csv')
     return df
 
+def slice_pilot_df():
+    df = pd.read_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated.csv')
+    df = df.iloc[: 1300]
+    
+    for year in [2012, 2017, 2022]:
+        slice = df[df['year'] == year]
+        print(year, len(slice))
+    
+    for metric in ['bertscore', 'bleurt']:
+        slice = df[df['metric'] == metric]
+        print(metric, len(slice))
 
+    for method in ['input_reduction', 'clare', 'faster_genetic', 'deep_word_bug']:
+        slice = df[df['attack_algo'] == method]
+        print(method, len(slice))
+
+    df.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated_sliced.csv', index=False)
+
+class SliceMaker():
+    def __init__(self, path, n_annotator=3, n_sents_per_chunk=70, n_duplicates_per_chunk=15, n_degraded_per_chunk=15):
+        self.tokenizer = nltk.TreebankWordTokenizer()
+        self.detoknizer = nltk.TreebankWordDetokenizer()
+
+        self.path = path
+        self.n_annotations = n_annotator
+        self.n_sents_per_chunk = n_sents_per_chunk
+        self.n_duplicates_per_chunk = n_duplicates_per_chunk
+        self.n_degraded_per_chunk = n_degraded_per_chunk
+        
+        self.n_del = 4
+
+        self.make_slices()
+
+    def make_slices(self):
+        df = pd.read_csv(self.path)
+
+        for i in range(0, len(df), self.n_sents_per_chunk):
+            chunk_idx = (str(i // self.n_sents_per_chunk)).zfill(5)
+            chunk_df = df.iloc[i: i + self.n_sents_per_chunk]
+
+            # Add duplicates and degraded sentences
+            chunk_df = self.add_control_items(chunk_df)
+
+            # Make chunks for the three-sentence and two-sentence setups
+            for annotator_idx in range(1, 1 + self.n_annotations):
+                self.make_three_sentence_chunk(chunk_df, chunk_idx, annotator_idx)
+                self.make_two_sentence_chunk(chunk_df, chunk_idx, annotator_idx + 6)
+
+    def add_control_items(self, chunk):
+        n_duplicates = min(self.n_duplicates_per_chunk, len(chunk))
+        n_degraded = min(self.n_degraded_per_chunk, len(chunk))
+
+        # Select indices for duplicates and degraded
+        duplicate_indices = random.sample(range(len(chunk)), n_duplicates)
+        degraded_indices = random.sample(range(len(chunk)), n_degraded)
+
+        duplicates = chunk.iloc[duplicate_indices]
+        degraded = chunk.iloc[degraded_indices]
+
+        # Degrade
+        for i in range(len(degraded)):
+            degraded.iloc[i, degraded.columns.to_list().index('adv')] = self.degrade(degraded.iloc[i]['adv'])
+            degraded.iloc[i, degraded.columns.to_list().index('mt')] = self.degrade(degraded.iloc[i]['mt'])
+
+        # Mark the control items
+        chunk.loc[:, 'control'] = ['None' for _ in range(len(chunk))]
+        duplicates.loc[:, 'control'] = ['duplicate' for _ in range(len(duplicates))]
+        degraded.loc[:, 'control'] = ['degrade' for _ in range(len(degraded))]
+
+        chunk.loc[:, 'control_idx'] = ['None' for _ in range(len(chunk))]
+        duplicates.loc[:, 'control_idx'] = duplicate_indices
+
+        degraded.loc[:, 'control_idx'] = degraded_indices
+
+        # Add to the chunk
+        chunk = pd.concat([chunk, duplicates, degraded])
+
+        # The order of the two sentence
+        chunk['display_order'] = [random.randint(0, 1) for _ in range(len(chunk))]
+
+        return chunk
+
+    def degrade(self, sent):
+        tokenized = self.tokenizer.tokenize(sent)
+        n_del = min(len(tokenized) - 1, self.n_del)
+        del_inds = np.random.choice([i for i in range(len(tokenized))], size=n_del, replace=False)
+        tokens_out = []
+        for token_idx, token in enumerate(tokenized):
+            if token_idx not in del_inds:
+                tokens_out.append(token)
+        out = self.detoknizer.detokenize(tokens_out)
+        return out
+    
+    def make_three_sentence_chunk(self, chunk, chunk_idx, annotator_name):
+        chunk = copy.deepcopy(chunk)
+        chunk['annotator_split'] = [annotator_name for _ in range(len(chunk))]
+
+        # Shuffle the chunk
+        chunk = chunk.sample(frac=1)
+
+        # Save
+        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name).zfill(2)}_semantic.csv', index=False)
+        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name + 3).zfill(2)}_fluency.csv', index=False)
+
+    def make_two_sentence_chunk(self, chunk, chunk_idx, annotator_name):
+        chunk_a = copy.deepcopy(chunk)
+        chunk_a['annotator_split'] = [annotator_name for _ in range(len(chunk_a))]
+        chunk_a = chunk_a[chunk_a['control'] == 'None']
+
+        chunk_b = copy.deepcopy(chunk_a)
+        
+        chunk_a['to_eval'] = ['mt' for _ in range(len(chunk_a))]
+        chunk_b['to_eval'] = ['adv' for _ in range(len(chunk_b))]
+
+        chunk = pd.concat([chunk_a, chunk_b])
+        chunk = chunk.sample(frac=1)
+
+        chunk_a, chunk_b = chunk.iloc[len(chunk) // 2 :] , chunk.iloc[: len(chunk) // 2]
+
+        chunk_a = self.add_control_items(chunk_a)
+        chunk_b = self.add_control_items(chunk_b)
+
+        chunk_a = chunk_a.sample(frac=1)
+        chunk_b = chunk_b.sample(frac=1)
+
+        # Save
+        chunk_a.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_twowayA_annotator{str(annotator_name).zfill(2)}_semantic.csv', index=False)
+        chunk_b.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_twowayB_annotator{str(annotator_name).zfill(2)}_semantic.csv', index=False)
+        chunk_a.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_twowayA_annotator{str(annotator_name + 3).zfill(2)}_fluency.csv', index=False)
+        chunk_b.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_twowayB_annotator{str(annotator_name + 3).zfill(2)}_fluency.csv', index=False)
+    
 
 if __name__ == '__main__':
-    make_aggregated_csv_for_annotation()
+    # make_aggregated_csv_for_annotation()
+    # slice_pilot_df()
+    SliceMaker(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated_sliced.csv')

@@ -156,20 +156,21 @@ if __name__ == '__main__':
 
     # Paths
     # parser.add_argument('--data_path', default='', type=str)
-    parser.add_argument('--data_path', default='processed/aggregated_de-en_bleurt-20-d12.csv', type=str)
+    # parser.add_argument('--data_path', default='processed/aggregated_de-en_bertscore_sorted.csv', type=str)
+    parser.add_argument('--data_path', default='processed/aggregated_de-en_comet_sorted.csv', type=str)
 
     # parser.add_argument('--file_path', default='5-24/20-d12_faster_genetic_aggregated_de-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_0.3_bleurt0.2.csv', type=str)
-    parser.add_argument('--file_path', default='annotation_raw/20-d12_input_reduction_aggregated_de-en_bleurt-20-d12_sorted_bleurt_bleurt-20-d12_down_1.0_gpt10.0.csv', type=str)
+    parser.add_argument('--file_path', default='6-6/comet_clare_aggregated_de-en_comet_sorted_comet_down_1.0_gpt10.0.csv', type=str)
     
     # Formatting
-    parser.add_argument('--format', default='default', type=str)
+    parser.add_argument('--format', default='default', type=str) # default, consistency
     
     # Sorting
     parser.add_argument('--min_edit_dist', default=0, type=int) 
     parser.add_argument('--sorting', default='random', type=str)
 
     # Display limit
-    parser.add_argument('--max_n_displayed', default=20, type=int) 
+    parser.add_argument('--max_n_displayed', default=50, type=int) 
 
     args = parser.parse_args()
 
