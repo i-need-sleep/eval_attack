@@ -133,7 +133,7 @@ def make_adv(args):
     if os.path.exists(save_path):
         print(f'Loaded from {save_name}')
         out, covered_len = utils.data_utils.csv_to_dict(save_name)
-        failed_out, covered_len = utils.data_utils.csv_to_dict(save_name.replace('.csv, _failed.csv'))
+        failed_out, covered_len = utils.data_utils.csv_to_dict(save_name.replace('.csv', '_failed.csv'))
     else:
         failed_out = copy.deepcopy(out)
     

@@ -30,7 +30,6 @@ python -u poc.py \
     --goal_direction down \
     --goal_abs_delta 1 \
     --gpt_constraint_threshold 10 \
-    --sbert_constraint_threshold 0.9 \
     --attack_algo deep_word_bug
     # --read_path 20-d12_clare_aggregated_cs-en_bleurt-20-d12_bleurt_bleurt-20-d12_down_1.0_gpt10.0_sbert0.9
 echo "FINISH"                       # 输出起始信息
