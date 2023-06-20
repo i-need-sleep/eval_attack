@@ -52,9 +52,12 @@ def check_perplexity_constraints_for_annotation():
 def retrieve_metadata(attacked_path, metadata_path, out_path):
     attacked_df = pd.read_csv(attacked_path)
     metadata_df = pd.read_csv(metadata_path)
-
     
     if 'mt' in attacked_df.columns:
+        # Remove rows with dulicate idxs
+        attacked_df = attacked_df.drop_duplicates(subset='idx')
+
+
         metadata_indices = attacked_df['idx'].tolist()
         metadata_lines = metadata_df.iloc[metadata_indices]
         assert metadata_lines['mt'].tolist() == attacked_df['mt'].tolist()
@@ -87,16 +90,15 @@ def retrieve_metadata_for_annotation():
     file_names = os.listdir(uglobals.ANNOTATION_RAW_DIR)
     for file_name in file_names:
         if 'cs-en' in file_name:
-            metadata_file_name = 'aggregated_cs-en.csv'
-            if 'commet' in file_name:
-                raise NotImplementedError
-            elif 'deep_word_bug' in file_name or 'input_reduction' in file_name:
-                metadata_file_name = 'aggregated_cs-en_comet_sorted.csv'
+            continue
+            # metadata_file_name = 'aggregated_cs-en.csv'
+            # if 'commet' in file_name:
+            #     raise NotImplementedError
+            # elif 'deep_word_bug' in file_name or 'input_reduction' in file_name:
+            #     metadata_file_name = 'aggregated_cs-en_comet_sorted.csv'
         if 'de-en' in file_name:
             metadata_file_name = 'aggregated_de-en.csv'
-            if 'commet' in file_name:
-                raise NotImplementedError
-            elif 'deep_word_bug' in file_name or 'input_reduction' in file_name:
+            if 'sorted' in file_name:
                 metadata_file_name = 'aggregated_de-en_comet_sorted.csv'
         
         print(file_name, metadata_file_name)
@@ -148,7 +150,7 @@ def make_aggregated_csv_for_annotation():
 
     # Filter out the language pairs/metrics/attacks we care about
     langs = ['de-en']
-    metrics = ['bleurt', 'bertscore']
+    metrics = ['bleurt', 'bertscore', 'comet']
     attack_algos = ['clare', 'deep_word_bug', 'faster_genetic', 'input_reduction']
 
     dfs = []
@@ -173,15 +175,15 @@ def make_aggregated_csv_for_annotation():
     df.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated.csv')
     return df
 
-def slice_pilot_df():
+def slice_df():
     df = pd.read_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated.csv')
-    df = df.iloc[: 1300]
+    df = df.iloc[: 30000]
     
     for year in [2012, 2017, 2022]:
         slice = df[df['year'] == year]
         print(year, len(slice))
     
-    for metric in ['bertscore', 'bleurt']:
+    for metric in ['bertscore', 'bleurt', 'comet']:
         slice = df[df['metric'] == metric]
         print(metric, len(slice))
 
@@ -192,7 +194,7 @@ def slice_pilot_df():
     df.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated_sliced.csv', index=False)
 
 class SliceMaker():
-    def __init__(self, path, n_annotator=3, n_sents_per_chunk=70, n_duplicates_per_chunk=15, n_degraded_per_chunk=15):
+    def __init__(self, path, n_annotator=4, n_sents_per_chunk=70, n_duplicates_per_chunk=15, n_degraded_per_chunk=15):
         self.tokenizer = nltk.TreebankWordTokenizer()
         self.detoknizer = nltk.TreebankWordDetokenizer()
 
@@ -219,7 +221,7 @@ class SliceMaker():
             # Make chunks for the three-sentence and two-sentence setups
             for annotator_idx in range(1, 1 + self.n_annotations):
                 self.make_three_sentence_chunk(chunk_df, chunk_idx, annotator_idx)
-                self.make_two_sentence_chunk(chunk_df, chunk_idx, annotator_idx + 6)
+                # self.make_two_sentence_chunk(chunk_df, chunk_idx, annotator_idx + 6)
 
     def add_control_items(self, chunk):
         n_duplicates = min(self.n_duplicates_per_chunk, len(chunk))
@@ -274,8 +276,8 @@ class SliceMaker():
         chunk = chunk.sample(frac=1)
 
         # Save
-        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name).zfill(2)}_semantic.csv', index=False)
-        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name + 3).zfill(2)}_fluency.csv', index=False)
+        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/main_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name).zfill(2)}_semantic.csv', index=False)
+        chunk.to_csv(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/main_chunks/pilot_hit{chunk_idx}_threeway_annotator{str(annotator_name + 4).zfill(2)}_fluency.csv', index=False)
 
     def make_two_sentence_chunk(self, chunk, chunk_idx, annotator_name):
         chunk_a = copy.deepcopy(chunk)
@@ -306,6 +308,7 @@ class SliceMaker():
     
 
 if __name__ == '__main__':
+    retrieve_metadata_for_annotation()
     # make_aggregated_csv_for_annotation()
-    # slice_pilot_df()
-    SliceMaker(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated_sliced.csv')
+    # slice_df()
+    # SliceMaker(f'{uglobals.ANNOTATION_AGGREGATED_DIR}/pilot_aggregated_sliced.csv')
