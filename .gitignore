@@ -28,5 +28,6 @@ results/runs
 
 # Clean up
 code/dated
-sh
-results
+code/models/*
+sh/*
+results/*
