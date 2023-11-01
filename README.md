@@ -1,4 +1,4 @@
-# Code and data for the paper **Robustness Tests for Automatic Machine Translation Metrics with Adversarial Attacks** accepted in EMNLP 2023 Findings.
+# Code and data for the paper **Robustness Tests for Automatic Machine Translation Metrics with Adversarial Attacks** (accepted in EMNLP 2023 Findings).
 
 ## Human Annotations
 The human ratings and perturbed sentence pairs is available through [Google Drive](https://drive.google.com/file/d/1JjWbTGpQBYZwXI29iojoOBGabxR9kb4h/view?usp=sharing).
