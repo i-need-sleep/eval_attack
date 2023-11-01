@@ -35,15 +35,45 @@ from annotation_data_proc import *
 #     if 'failed' not in name:
 #         paths.append(f'{uglobals.ANNOTATION_METADATA_DIR}/{name}')
 # print(paths)
-# df = pd.concat([pd.read_csv(path) for path in paths])
+# dfs = [pd.read_csv(path) for path in paths]
+# attack_algos = ['clare', 'faster_genetic', 'input_reduction']
+# for i, df in enumerate(dfs):
+#     for algo in attack_algos:
+#         if algo in paths[i]:
+#             df['attack_algo'] = [algo for _ in range(len(df))]
+# df = pd.concat(dfs)
 # df.to_csv(f'{uglobals.ANNOTATION_METADATA_DIR}/consistency.csv', index=False)
 
-original = 'There are a lot of Latin American ingredients in your Tempo and melody.'
-adv = 'There are a lot of good Latin American ingredients in your Tempo and melody.'
+# original = 'There are a lot of Latin American ingredients in your Tempo and melody.'
+# adv = 'There are a lot of good Latin American ingredients in your Tempo and melody.'
 
-bertscore = evaluate.load('bertscore', experiment_id=datetime.datetime.now())
-score = bertscore.compute(predictions = [original], references = [original], lang='en')['f1']
-print(score)
+# bertscore = evaluate.load('bertscore')#, experiment_id=datetime.datetime.now())
+# score = bertscore.compute(predictions = [original], references = [original], lang='en')['f1']
+# print(score)
 
-score = bertscore.compute(predictions = [original], references = [adv], lang='en')['f1']
-print(score)
+# score = bertscore.compute(predictions = [original], references = [adv], lang='en')['f1']
+# print(score)
+
+year_num = [8000, 5500, 5500]
+ctr = 0
+
+for method in ['clare', 'genetic','reduction', 'word']:
+    out = []
+    for metric in ['20-d12', 'bertscore', 'comet']:
+        for year_idx, year in enumerate([2012, 2017, 2022]):
+            for name in os.listdir(f'{uglobals.OUTPUT_DIR}/annotation_main/annotation_metadata'):
+                if 'failed' in name or 'cs-en' in name:
+                    continue
+                if metric in name and method in name:
+                    path = f'{uglobals.OUTPUT_DIR}/annotation_main/annotation_metadata/{name}'
+                    df = pd.read_csv(path)
+                    df = df[df['year'] == year]
+                    ratio = len(df) / year_num[year_idx]
+                    ratio = "{:.2%}".format(ratio)
+                    out.append(f'{len(df)} ($ {ratio} $)')
+                    ctr += len(df)
+                    break
+    string = ' & '.join(out)
+    out = f'{method} & {string} \\\\'.replace('%', '\%')
+    print(out)
+    print(ctr)

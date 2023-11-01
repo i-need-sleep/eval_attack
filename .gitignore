@@ -1,7 +1,9 @@
 # Misc
 *.pyc
 */debug.ipynb
+*/debug.py
 */tutorial.py
+code/dated
 
 # Data
 data

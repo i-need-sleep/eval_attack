@@ -62,28 +62,28 @@ def preproc_wmt_year(src_path, ref_path, mt_dir, year, sys_name_idx, subsample=T
     df.to_csv(save_path)
     return df
 
-def preproc_wmt():
+def preproc_wmt(subsample=True):
     dfs = []
 
     year = 2012
     src_path = f'{uglobals.DATA_DIR}/wmt12-data/plain/sources/newstest2012-src.{SRC_LANG}'
     ref_path = f'{uglobals.DATA_DIR}/wmt12-data/plain/references/newstest2012-ref.{REF_LANG}'
     mt_dir = f'{uglobals.DATA_DIR}/wmt12-data/plain/system-outputs/newstest2012/{SRC_LANG}-{REF_LANG}/'
-    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, -1)
+    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, -1, subsample=subsample)
     dfs.append(df)
 
     year = 2017
     src_path = f'{uglobals.DATA_DIR}/wmt17-metrics-task/wmt17-submitted-data/txt/sources/newstest2017-{SRC_LANG}{REF_LANG}-src.{SRC_LANG}'
     ref_path = f'{uglobals.DATA_DIR}/wmt17-metrics-task/wmt17-submitted-data/txt/references/newstest2017-{SRC_LANG}{REF_LANG}-ref.{REF_LANG}'
     mt_dir = f'{uglobals.DATA_DIR}/wmt17-metrics-task/wmt17-submitted-data/txt/system-outputs/newstest2017/{SRC_LANG}-{REF_LANG}/'
-    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, 1)
+    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, 1, subsample=subsample)
     dfs.append(df)
 
     year = 2022
     src_path = f'{uglobals.DATA_DIR}/wmt22-metrics-inputs-v7/wmt22-metrics-inputs-v6/metrics_inputs/txt/generaltest2022/sources/generaltest2022.{SRC_LANG}-{REF_LANG}.src.{SRC_LANG}'
     ref_path = f'{uglobals.DATA_DIR}/wmt22-metrics-inputs-v7/wmt22-metrics-inputs-v6/metrics_inputs/txt/generaltest2022/references/generaltest2022.{SRC_LANG}-{REF_LANG}.ref.refA.{REF_LANG}'
     mt_dir = f'{uglobals.DATA_DIR}/wmt22-metrics-inputs-v7/wmt22-metrics-inputs-v6/metrics_inputs/txt/generaltest2022/system_outputs/{SRC_LANG}-{REF_LANG}/'
-    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, -2)
+    df = preproc_wmt_year(src_path, ref_path, mt_dir, year, -2, subsample=subsample)
     dfs.append(df)
 
     df_out = pd.concat(dfs)
@@ -146,15 +146,15 @@ def fetch_src(src_name, file_name):
 
 if __name__ == '__main__':
     
-    SRC_LANG = 'cs'
+    SRC_LANG = 'de'
     REF_LANG = 'en'
-    N_SENTS = 100
-    MIN_REF_LEN = 10
+    # N_SENTS = 100
+    MIN_REF_LEN = 0
 
-    # preproc_wmt()
+    preproc_wmt(False)
 
     # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bleurt-20-d12', 'std')
     # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'bertscore', 'std')
-    eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'comet', 'std')
+    # eval_preproced(f'{uglobals.PROCESSED_DIR}/aggregated_{SRC_LANG}-{REF_LANG}.csv', 'comet', 'std')
 
     # fetch_src(f'aggregated_{SRC_LANG}-{REF_LANG}_ref', f'aggregated_{SRC_LANG}-{REF_LANG}')
