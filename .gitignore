@@ -3,7 +3,6 @@
 */debug.ipynb
 */debug.py
 */tutorial.py
-code/dated
 
 # Data
 data
@@ -26,3 +25,8 @@ results/runs
 # sh
 *.err
 *.out
+
+# Clean up
+code/dated
+sh
+results
